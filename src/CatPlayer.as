@@ -73,10 +73,12 @@ package {
             pauseBitmap = new pauseImg().bitmapData;
             
             progressUpdateTimer = new Timer(progressIndicatorUpdateInterval);
-            progressUpdateTimer.addEventListener(TimerEvent.TIMER, drawProgressLine);
+            progressUpdateTimer.addEventListener(TimerEvent.TIMER,
+						 drawProgressLine);
             
             loadingUpdateTimer = new Timer(loadingIndicatorUpdateInterval);
-            loadingUpdateTimer.addEventListener(TimerEvent.TIMER, onLoadProgress);
+            loadingUpdateTimer.addEventListener(TimerEvent.TIMER,
+						onLoadProgress);
             
             drawPlay();
             createProgressLine();
@@ -89,14 +91,17 @@ package {
         }
         
         private function get loaded():Boolean {
-            return soundFactory && soundFactory.bytesLoaded == soundFactory.bytesTotal;
+            return soundFactory && 
+		soundFactory.bytesLoaded == soundFactory.bytesTotal;
         }
 
         private function createProgressLine():void {
             progressLine = new Sprite();
             progressLine.x = buttonWidth;
             progressLine.graphics.beginFill(progressIndicatorColor);
-            progressLine.graphics.drawRect(0, 0, progressIndicatorWeight, playerHeight - loadingIndicatorWeight);
+	    var pHeight:Number = playerHeight - loadingIndicatorWeight;
+            progressLine.graphics.drawRect(0, 0, progressIndicatorWeight,
+					   pHeight);
             addChild(progressLine);
         }
         
@@ -120,7 +125,8 @@ package {
             imageLoader = new Loader();
             imageLoader.load(new URLRequest(imageUrl));
             addChild(imageLoader);
-            imageLoader.contentLoaderInfo.addEventListener(Event.INIT, onImageLoad);
+            imageLoader.contentLoaderInfo.addEventListener(Event.INIT,
+							   onImageLoad);
         }
         
         private function onImageLoad(event:Event):void {
@@ -136,8 +142,10 @@ package {
                 pause();
             } else {
                 if (loaded) {
-                    var requestedPos:Number = (event.stageX - buttonWidth) / (playerWidth - buttonWidth);
-                    if (soundFactory.bytesLoaded > soundFactory.bytesTotal * requestedPos) {
+                    var requestedPos:Number = (event.stageX - buttonWidth) /
+			(playerWidth - buttonWidth);
+                    if (soundFactory.bytesLoaded >
+			soundFactory.bytesTotal * requestedPos) {
                         song.stop();
                         song = soundFactory.play(length * requestedPos);
                     }
@@ -146,7 +154,8 @@ package {
         }
         
         private function drawProgressLine(event:TimerEvent):void {
-            progressLine.x = buttonWidth + song.position * (playerWidth - buttonWidth - progressIndicatorWeight) / length; 
+            progressLine.x = buttonWidth + song.position *
+		(playerWidth - buttonWidth - progressIndicatorWeight) / length; 
         }
 
         private function playMP3():void {
@@ -167,7 +176,8 @@ package {
             with (graphics) {
                 beginFill(loadingIndicatorColor);
                 drawRect(0, playerHeight - loadingIndicatorWeight,
-                         soundFactory.bytesLoaded * playerWidth / soundFactory.bytesTotal, loadingIndicatorWeight);
+                         soundFactory.bytesLoaded * playerWidth /
+			 soundFactory.bytesTotal, loadingIndicatorWeight);
                 endFill();
             }
             if (soundFactory.bytesLoaded == soundFactory.bytesTotal) {
@@ -190,7 +200,8 @@ package {
                 } else {
                     paused = false;
                     song = soundFactory.play(position);
-                    song.addEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
+                    song.addEventListener(Event.SOUND_COMPLETE,
+					  soundCompleteHandler);
                     drawPause();
                     progressUpdateTimer.start();
                 }
