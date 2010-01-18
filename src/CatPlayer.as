@@ -14,7 +14,7 @@ package {
     public class CatPlayer extends Sprite {
                 
         private const playerWidth:Number = 500;
-        private const playerHeight:Number = 82;
+        private const playerHeight:Number = 80;
         private const playerBackgroundColor:Number = 0x000000;
         
         private const buttonWidth:Number = 80;
@@ -28,13 +28,15 @@ package {
         private const progressIndicatorColor:Number = 0xFF0000;
         private const progressIndicatorUpdateInterval:Number = 400;
         
-        
+        private var loadingWidth:Number;
+        private var loadingY:Number;
         
         private var url:String;
         private var imageUrl:String;
         
+        private var playStarted:Boolean = false;
         private var song:SoundChannel;
-        private var request:URLRequest
+        private var request:URLRequest;
         private var paused:Boolean = false;
         private var stopped:Boolean = true;
         private var position:Number;
@@ -68,17 +70,20 @@ package {
                 drawRect(0, 0, playerWidth, playerHeight);
                 endFill();
             }
-                       
+            
+            loadingWidth = playerWidth - buttonWidth;
+            loadingY = playerHeight - loadingIndicatorWeight;
+            
             playBitmap = new playImg().bitmapData;
             pauseBitmap = new pauseImg().bitmapData;
             
             progressUpdateTimer = new Timer(progressIndicatorUpdateInterval);
             progressUpdateTimer.addEventListener(TimerEvent.TIMER,
-						 drawProgressLine);
+                                                 drawProgressLine);
             
             loadingUpdateTimer = new Timer(loadingIndicatorUpdateInterval);
             loadingUpdateTimer.addEventListener(TimerEvent.TIMER,
-						onLoadProgress);
+                                                onLoadProgress);
             
             drawPlay();
             createProgressLine();
@@ -92,16 +97,17 @@ package {
         
         private function get loaded():Boolean {
             return soundFactory && 
-		soundFactory.bytesLoaded == soundFactory.bytesTotal;
+                soundFactory.bytesLoaded == soundFactory.bytesTotal;
         }
+
 
         private function createProgressLine():void {
             progressLine = new Sprite();
             progressLine.x = buttonWidth;
             progressLine.graphics.beginFill(progressIndicatorColor);
-	    var pHeight:Number = playerHeight - loadingIndicatorWeight;
+            var pHeight:Number = playerHeight - loadingIndicatorWeight;
             progressLine.graphics.drawRect(0, 0, progressIndicatorWeight,
-					   pHeight);
+                                           pHeight);
             addChild(progressLine);
         }
         
@@ -126,7 +132,7 @@ package {
             imageLoader.load(new URLRequest(imageUrl));
             addChild(imageLoader);
             imageLoader.contentLoaderInfo.addEventListener(Event.INIT,
-							   onImageLoad);
+                                                           onImageLoad);
         }
         
         private function onImageLoad(event:Event):void {
@@ -140,12 +146,14 @@ package {
         private function onMouseClick(event:MouseEvent):void {
             if (event.stageX <= buttonWidth && event.stageY <= buttonHeight) {
                 pause();
-            } else {
+            } else if (!paused && !stopped &&
+                       event.stageX <= playerWidth &&
+                       event.stageY <= playerHeight) {
                 if (loaded) {
                     var requestedPos:Number = (event.stageX - buttonWidth) /
-			(playerWidth - buttonWidth);
+                        (playerWidth - buttonWidth);
                     if (soundFactory.bytesLoaded >
-			soundFactory.bytesTotal * requestedPos) {
+                        soundFactory.bytesTotal * requestedPos) {
                         song.stop();
                         song = soundFactory.play(length * requestedPos);
                     }
@@ -155,10 +163,14 @@ package {
         
         private function drawProgressLine(event:TimerEvent):void {
             progressLine.x = buttonWidth + song.position *
-		(playerWidth - buttonWidth - progressIndicatorWeight) / length; 
+                (playerWidth - buttonWidth - progressIndicatorWeight) / length; 
         }
 
         private function playMP3():void {
+            if (playStarted) {
+                return;
+            }
+            playStarted = true;
             stopped = false;
             paused = false;
             position = 0;
@@ -175,9 +187,9 @@ package {
         private function onLoadProgress(event:TimerEvent):void {
             with (graphics) {
                 beginFill(loadingIndicatorColor);
-                drawRect(0, playerHeight - loadingIndicatorWeight,
-                         soundFactory.bytesLoaded * playerWidth /
-			 soundFactory.bytesTotal, loadingIndicatorWeight);
+                drawRect(buttonWidth, loadingY,
+                         soundFactory.bytesLoaded * loadingWidth /
+                         soundFactory.bytesTotal, loadingIndicatorWeight);
                 endFill();
             }
             if (soundFactory.bytesLoaded == soundFactory.bytesTotal) {
@@ -201,7 +213,7 @@ package {
                     paused = false;
                     song = soundFactory.play(position);
                     song.addEventListener(Event.SOUND_COMPLETE,
-					  soundCompleteHandler);
+                                          soundCompleteHandler);
                     drawPause();
                     progressUpdateTimer.start();
                 }
