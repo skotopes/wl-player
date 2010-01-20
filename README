@@ -1,0 +1,26 @@
+параметры, передаваемые плееру через flashvars
+
+обязательные
+
+	private var url:String;
+	private var imageUrl:String;
+	private var backgroundUrl:String;
+
+
+опциональные
+
+        private var playerWidth:Number = 500;
+        private var playerHeight:Number = 80;
+        private var playerBackgroundColor:Number = 0x000000;
+        
+        private var buttonWidth:Number = 80;
+        private var buttonHeight:Number = 80;
+        
+        private var loadingIndicatorWeight:Number = 2;
+        private var loadingIndicatorColor:Number = 0x0000FF;
+        private var loadingIndicatorUpdateInterval:Number = 400;
+        
+        private var progressIndicatorWeight:Number = 2;
+        private var progressIndicatorColor:Number = 0xFF0000;
+        private var progressIndicatorUpdateInterval:Number = 400;
+

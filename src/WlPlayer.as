@@ -5,35 +5,53 @@ package {
     import flash.display.Sprite;
     import flash.display.StageAlign;
     import flash.display.StageScaleMode;
-    import flash.events.*;
+    import flash.events.Event;
+	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
+	import flash.events.ProgressEvent;
     import flash.media.Sound;
     import flash.media.SoundChannel;
     import flash.net.URLRequest;
     import flash.utils.Timer;
-    
-    public class CatPlayer extends Sprite {
-                
-        private const playerWidth:Number = 500;
-        private const playerHeight:Number = 80;
-        private const playerBackgroundColor:Number = 0x000000;
+	
+	import org.casalib.util.StageReference;
+	import org.casalib.util.FlashVarUtil;
+	import org.casalib.display.CasaSprite;
+	import org.casalib.display.CasaMovieClip;
+	import org.casalib.load.ImageLoad;
+	import org.casalib.events.LoadEvent;
+		
+	
+    public class WlPlayer extends CasaMovieClip {
+
+		// fashvars
+		
+        private var playerWidth:Number = 500;
+        private var playerHeight:Number = 80;
+        private var playerBackgroundColor:Number = 0x000000;
         
-        private const buttonWidth:Number = 80;
-        private const buttonHeight:Number = 80;
+        private var buttonWidth:Number = 80;
+        private var buttonHeight:Number = 80;
         
-        private const loadingIndicatorWeight:Number = 2;
-        private const loadingIndicatorColor:Number = 0x0000FF;
-        private const loadingIndicatorUpdateInterval:Number = 400;
+        private var loadingIndicatorWeight:Number = 2;
+        private var loadingIndicatorColor:Number = 0x0000FF;
+        private var loadingIndicatorUpdateInterval:Number = 400;
         
-        private const progressIndicatorWeight:Number = 2;
-        private const progressIndicatorColor:Number = 0xFF0000;
-        private const progressIndicatorUpdateInterval:Number = 400;
+        private var progressIndicatorWeight:Number = 2;
+        private var progressIndicatorColor:Number = 0xFF0000;
+        private var progressIndicatorUpdateInterval:Number = 400;
         
+		private var url:String;
+		private var imageUrl:String;
+		private var backgroundUrl:String;
+
+		// end flashvars
+		
+		
         private var loadingWidth:Number;
         private var loadingY:Number;
         
-        private var url:String;
-        private var imageUrl:String;
-        
+		private var bgSprite:CasaSprite;
         private var playStarted:Boolean = false;
         private var song:SoundChannel;
         private var request:URLRequest;
@@ -42,11 +60,14 @@ package {
         private var position:Number;
         private var soundFactory:Sound;
         private var imageLoader:Loader;
-        private var progressLine:Sprite;
+        private var progressLine:CasaSprite;
         private var progressUpdateTimer:Timer;
         private var loadingProgress:Number;
         private var loadingUpdateTimer:Timer;
         
+		private var _imageLoad:ImageLoad;
+		private var _bgLoad:ImageLoad;
+		
         [Embed(source='../assets/play.png')]
         private var playImg:Class;
         private var playBitmap:BitmapData;
@@ -55,12 +76,28 @@ package {
         private var pauseImg:Class;
         private var pauseBitmap:BitmapData; 
         
-        public function CatPlayer() {
+		
+        public function WlPlayer() {
             
-            url = String(loaderInfo.parameters.url);
-            imageUrl = String(loaderInfo.parameters.imageUrl);
-            
-            with (stage) {
+			StageReference.setStage(stage);
+			
+			url = FlashVarUtil.getValue('url');
+			imageUrl = FlashVarUtil.getValue('imageUrl');
+			backgroundUrl = FlashVarUtil.getValue('backgroundUrl');
+			
+			var optionalVars:Array = ['playerWidth', 'playerHeight', 'playerBackgroundColor',
+									  'buttonWidth', 'buttonHeight', 'loadingIndicatorWeight',
+									  'loadingIndicatorColor', 'loadingIndicatorUpdateInterval',
+									  'progressIndicatorWeight', 'progressIndicatorColor',
+									  'progressIndicatorUpdateInterval'];
+			
+			optionalVars.map(function(name:String, index:Number, all:Array):void {
+				if (FlashVarUtil.hasKey(name)) {
+					this[name] = Number(FlashVarUtil.getValue(name));
+				}
+			}, this);
+			
+            with (StageReference.getStage()) {
                 align = StageAlign.TOP_LEFT;
                 scaleMode = StageScaleMode.NO_SCALE;
                 addEventListener(MouseEvent.CLICK, onMouseClick);
@@ -87,7 +124,33 @@ package {
             
             drawPlay();
             createProgressLine();
-            loadImage();
+			
+			_bgLoad = new ImageLoad(backgroundUrl);
+			_bgLoad.addEventListener(LoadEvent.COMPLETE, function(event:LoadEvent):void {
+				bgSprite = new CasaSprite();
+				bgSprite.cacheAsBitmap = true;
+				with (bgSprite.graphics) {
+					beginBitmapFill(_bgLoad.contentAsBitmapData);
+					drawRect(0, 0, playerWidth, playerHeight - loadingIndicatorWeight);
+					endFill();
+				}
+				_imageLoad = new ImageLoad(imageUrl);
+				_imageLoad.addEventListener(LoadEvent.COMPLETE, function(event:LoadEvent):void {
+					_imageLoad.loaderInfo.content.width = playerWidth - buttonWidth;
+					_imageLoad.loaderInfo.content.height = playerHeight - loadingIndicatorWeight;
+					var maskMc:CasaMovieClip = new CasaMovieClip();
+					maskMc.x = buttonWidth;
+					maskMc.addChild(_imageLoad.loader);
+					maskMc.cacheAsBitmap = true;
+					addChild(maskMc);
+					bgSprite.mask = maskMc;
+					addChild(bgSprite);
+					setChildIndex(progressLine, numChildren - 1);
+				});
+				_imageLoad.start();
+			});
+			_bgLoad.start();
+			
         }
         
                 
@@ -102,7 +165,7 @@ package {
 
 
         private function createProgressLine():void {
-            progressLine = new Sprite();
+            progressLine = new CasaSprite();
             progressLine.x = buttonWidth;
             progressLine.graphics.beginFill(progressIndicatorColor);
             var pHeight:Number = playerHeight - loadingIndicatorWeight;
@@ -124,25 +187,9 @@ package {
                 beginBitmapFill(playBitmap);
                 drawRect(0, 0, buttonWidth, buttonHeight);
                 endFill();
-            }        
+            }
         }
-        
-        private function loadImage():void {
-            imageLoader = new Loader();
-            imageLoader.load(new URLRequest(imageUrl));
-            addChild(imageLoader);
-            imageLoader.contentLoaderInfo.addEventListener(Event.INIT,
-                                                           onImageLoad);
-        }
-        
-        private function onImageLoad(event:Event):void {
-            imageLoader.content.width = playerWidth - buttonWidth;
-            imageLoader.content.height = playerHeight - loadingIndicatorWeight;
-            imageLoader.content.x = buttonWidth;
-            setChildIndex(progressLine, numChildren - 1);
-        }
-
-        
+                
         private function onMouseClick(event:MouseEvent):void {
             if (event.stageX <= buttonWidth && event.stageY <= buttonHeight) {
                 pause();
@@ -221,12 +268,6 @@ package {
                 playMP3();
             }
         }
-        
-        private function stop():void {
-            stopped = true;
-            song.stop();
-            position = 0;
-        }
-        
+                
     }
 }
