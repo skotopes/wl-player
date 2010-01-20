@@ -28,7 +28,7 @@ package {
 		
         private var playerWidth:Number = 500;
         private var playerHeight:Number = 80;
-        private var playerBackgroundColor:Number = 0x000000;
+        private var playerBackgroundColor:Number = 0xFFFFFF;
         
         private var buttonWidth:Number = 80;
         private var buttonHeight:Number = 80;
