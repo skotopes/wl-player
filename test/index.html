@@ -3,17 +3,47 @@
 <head>
 	<title>Share </title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+
+  <script type="text/javascript" src="audio-player.js"></script>
+  <script type="text/javascript">
+  AudioPlayer.setup('../bin/wlplayer.swf', {
+    'backgroundUrl': 'output_black.png',
+    'playerWidth': 600,
+    'playerHeight': 80
+  });
+  </script>
 </head>
 
 <body style="background: #000;">
 
-<div id="wrap">
-    <object type="application/x-shockwave-flash" name="share_ap" data="../bin/wlplayer.swf" width="100%" height="100%" id="share_ap">
-    <param name="bgcolor" value="#FFFFFF">
-    <param name="wmode" value="transparent">
-    <param name="menu" value="false">
-    <param name="flashvars" value="url=http%3A%2F%2Fshare.white-label.ru%2Fpreviews%2F7f7eef26-038f-11df-8fd6-000423b32792&amp;imageUrl=output.png&amp;backgroundUrl=output_black.png">
-    </object>
-</div>
+<p id="audioplayer_1">Alternative content</p>  
+<script type="text/javascript">  
+AudioPlayer.embed("audioplayer_1", {
+  'url': 'http://share.white-label.ru/previews/7f7eef26-038f-11df-8fd6-000423b32792',
+  'imageUrl': 'output.png'
+});
+</script>
+
+
+<p id="audioplayer_2">Alternative content</p>  
+<script type="text/javascript">  
+AudioPlayer.embed("audioplayer_2", {
+  'url': 'http://share.white-label.ru/previews/7f7eef26-038f-11df-8fd6-000423b32792',
+  'imageUrl': 'output.png'
+});
+</script>
+
+
+<p id="audioplayer_3">Alternative content</p>  
+<script type="text/javascript">  
+AudioPlayer.embed("audioplayer_3", {
+  'url': 'http://share.white-label.ru/previews/7f7eef26-038f-11df-8fd6-000423b32792',
+  'imageUrl': 'output.png'
+});
+</script>
+
+
+
 </body>
 </html>

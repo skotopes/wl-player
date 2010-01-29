@@ -1,5 +1,7 @@
 package {
 
+    import flash.system.Security;
+    import flash.external.ExternalInterface;
     import flash.display.BitmapData;
     import flash.display.Loader;
     import flash.display.Sprite;
@@ -44,7 +46,8 @@ package {
 		private var url:String;
 		private var imageUrl:String;
 		private var backgroundUrl:String;
-
+        private var playerID:String;
+        
 		// end flashvars
 		
 		
@@ -84,6 +87,7 @@ package {
 			url = FlashVarUtil.getValue('url');
 			imageUrl = FlashVarUtil.getValue('imageUrl');
 			backgroundUrl = FlashVarUtil.getValue('backgroundUrl');
+			playerID = FlashVarUtil.getValue('playerID');
 			
 			var optionalVars:Array = ['playerWidth', 'playerHeight', 'playerBackgroundColor',
 									  'buttonWidth', 'buttonHeight', 'loadingIndicatorWeight',
@@ -153,6 +157,17 @@ package {
 			});
 			_bgLoad.start();
 			
+			ExternalInterface.addCallback('pause', function():void {
+			    _pause();
+			});
+			ExternalInterface.addCallback('play', function():void {
+                if (!stopped) {
+                    _play();
+                } else {
+                    playMP3();
+                }
+			});
+			
         }
         
                 
@@ -221,6 +236,7 @@ package {
             if (playStarted) {
                 return;
             }
+            ExternalInterface.call('AudioPlayer.onPlay', playerID);
             playStarted = true;
             stopped = false;
             paused = false;
@@ -255,23 +271,33 @@ package {
         private function pause():void {
             if (!stopped) {
                 if (!paused) {
-                    paused = true;
-                    position = song.position;
-                    song.stop();
-                    drawPlay();
-                    progressUpdateTimer.stop();
+                    _pause();
                 } else {
-                    paused = false;
-                    song = soundFactory.play(position);
-                    song.addEventListener(Event.SOUND_COMPLETE,
-                                          soundCompleteHandler);
-                    drawPause();
-                    progressUpdateTimer.start();
+                    _play();
                 }
             } else {
                 playMP3();
             }
         }
-                
+        
+        private function _pause():void {
+            ExternalInterface.call('AudioPlayer.onPause', playerID);
+            paused = true;
+            position = song.position;
+            song.stop();
+            drawPlay();
+            progressUpdateTimer.stop();
+        }
+        
+        private function _play():void {
+            ExternalInterface.call('AudioPlayer.onPlay', playerID);
+            paused = false;
+            song = soundFactory.play(position);
+            song.addEventListener(Event.SOUND_COMPLETE,
+                                  soundCompleteHandler);
+            drawPause();
+            progressUpdateTimer.start();
+        }
+            
     }
 }
