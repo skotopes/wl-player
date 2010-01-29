@@ -64,7 +64,7 @@ package {
         private var progressUpdateTimer:Timer;
         private var loadingProgress:Number;
         private var loadingUpdateTimer:Timer;
-        
+        private var btnSprite:CasaSprite;
 		private var _imageLoad:ImageLoad;
 		private var _bgLoad:ImageLoad;
 		
@@ -113,6 +113,8 @@ package {
             
             playBitmap = new playImg().bitmapData;
             pauseBitmap = new pauseImg().bitmapData;
+            btnSprite = new CasaSprite();
+            addChild(btnSprite);
             
             progressUpdateTimer = new Timer(progressIndicatorUpdateInterval);
             progressUpdateTimer.addEventListener(TimerEvent.TIMER,
@@ -175,7 +177,8 @@ package {
         }
         
         private function drawPause():void {
-            with (graphics) {
+            with (btnSprite.graphics) {
+                clear();
                 beginBitmapFill(pauseBitmap);
                 drawRect(0, 0, buttonWidth, buttonHeight);
                 endFill();
@@ -183,7 +186,8 @@ package {
         }
         
         private function drawPlay():void {
-            with (graphics) {
+            with (btnSprite.graphics) {
+                clear();
                 beginBitmapFill(playBitmap);
                 drawRect(0, 0, buttonWidth, buttonHeight);
                 endFill();
