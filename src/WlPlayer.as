@@ -35,11 +35,9 @@ package {
         private var buttonWidth:Number = 80;
         private var buttonHeight:Number = 80;
         
-        private var loadingIndicatorWeight:Number = 2;
-        private var loadingIndicatorColor:Number = 0x0000FF;
+        private var loadingIndicatorColor:Number = 0x666666;
         private var loadingIndicatorUpdateInterval:Number = 400;
         
-        private var progressIndicatorWeight:Number = 2;
         private var progressIndicatorColor:Number = 0xFF0000;
         private var progressIndicatorUpdateInterval:Number = 400;
         
@@ -64,6 +62,7 @@ package {
         private var soundFactory:Sound;
         private var imageLoader:Loader;
         private var progressLine:CasaSprite;
+        private var loadingSprite:CasaSprite;
         private var progressUpdateTimer:Timer;
         private var loadingProgress:Number;
         private var loadingUpdateTimer:Timer;
@@ -90,9 +89,9 @@ package {
 			playerID = FlashVarUtil.getValue('playerID');
 			
 			var optionalVars:Array = ['playerWidth', 'playerHeight', 'playerBackgroundColor',
-									  'buttonWidth', 'buttonHeight', 'loadingIndicatorWeight',
+									  'buttonWidth', 'buttonHeight',
 									  'loadingIndicatorColor', 'loadingIndicatorUpdateInterval',
-									  'progressIndicatorWeight', 'progressIndicatorColor',
+									  'progressIndicatorColor',
 									  'progressIndicatorUpdateInterval'];
 			
 			optionalVars.map(function(name:String, index:Number, all:Array):void {
@@ -113,7 +112,7 @@ package {
             }
             
             loadingWidth = playerWidth - buttonWidth;
-            loadingY = playerHeight - loadingIndicatorWeight;
+            loadingY = playerHeight;
             
             playBitmap = new playImg().bitmapData;
             pauseBitmap = new pauseImg().bitmapData;
@@ -129,6 +128,7 @@ package {
                                                 onLoadProgress);
             
             drawPlay();
+            createLoadingSprite();
             createProgressLine();
 			
 			_bgLoad = new ImageLoad(backgroundUrl);
@@ -137,13 +137,13 @@ package {
 				bgSprite.cacheAsBitmap = true;
 				with (bgSprite.graphics) {
 					beginBitmapFill(_bgLoad.contentAsBitmapData);
-					drawRect(0, 0, playerWidth, playerHeight - loadingIndicatorWeight);
+					drawRect(0, 0, playerWidth, playerHeight);
 					endFill();
 				}
 				_imageLoad = new ImageLoad(imageUrl);
 				_imageLoad.addEventListener(LoadEvent.COMPLETE, function(event:LoadEvent):void {
 					_imageLoad.loaderInfo.content.width = playerWidth - buttonWidth;
-					_imageLoad.loaderInfo.content.height = playerHeight - loadingIndicatorWeight;
+					_imageLoad.loaderInfo.content.height = playerHeight;
 					var maskMc:CasaMovieClip = new CasaMovieClip();
 					maskMc.x = buttonWidth;
 					maskMc.addChild(_imageLoad.loader);
@@ -169,10 +169,9 @@ package {
 			});
 			
         }
-        
                 
         private function get length():Number {
-            return soundFactory.length;
+            return soundFactory.length * soundFactory.bytesTotal / soundFactory.bytesLoaded;
         }
         
         private function get loaded():Boolean {
@@ -184,11 +183,18 @@ package {
         private function createProgressLine():void {
             progressLine = new CasaSprite();
             progressLine.x = buttonWidth;
-            progressLine.graphics.beginFill(progressIndicatorColor);
-            var pHeight:Number = playerHeight - loadingIndicatorWeight;
-            progressLine.graphics.drawRect(0, 0, progressIndicatorWeight,
-                                           pHeight);
             addChild(progressLine);
+        }
+        
+        private function createLoadingSprite():void {
+            loadingSprite = new CasaSprite();
+            loadingSprite.x = buttonWidth;
+            with (loadingSprite.graphics) {
+                beginFill(loadingIndicatorColor, .5);
+                drawRect(0, 0, playerWidth - buttonWidth, playerHeight);
+                endFill();
+            }
+            addChild(loadingSprite);
         }
         
         private function drawPause():void {
@@ -228,8 +234,13 @@ package {
         }
         
         private function drawProgressLine(event:TimerEvent):void {
-            progressLine.x = buttonWidth + song.position *
-                (playerWidth - buttonWidth - progressIndicatorWeight) / length; 
+            with (progressLine.graphics) {
+                clear();
+                beginFill(progressIndicatorColor, .5);
+                drawRect(0, 0, song.position *
+                    (playerWidth - buttonWidth) / length, playerHeight);
+                endFill();
+            }
         }
 
         private function playMP3():void {
@@ -252,13 +263,7 @@ package {
         }
                 
         private function onLoadProgress(event:TimerEvent):void {
-            with (graphics) {
-                beginFill(loadingIndicatorColor);
-                drawRect(buttonWidth, loadingY,
-                         soundFactory.bytesLoaded * loadingWidth /
-                         soundFactory.bytesTotal, loadingIndicatorWeight);
-                endFill();
-            }
+            loadingSprite.x = buttonWidth + soundFactory.bytesLoaded * loadingWidth / soundFactory.bytesTotal;
             if (soundFactory.bytesLoaded == soundFactory.bytesTotal) {
                 loadingUpdateTimer.stop();
             }
