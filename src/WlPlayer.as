@@ -28,22 +28,22 @@ package {
 
 		// fashvars
 		
-        private var playerWidth:Number = 500;
-        private var playerHeight:Number = 80;
+        private var playerWidth:Number = 600;
+        private var playerHeight:Number = 100;
         private var playerBackgroundColor:Number = 0xFFFFFF;
         
-        private var buttonWidth:Number = 80;
-        private var buttonHeight:Number = 80;
+        private var buttonWidth:Number = 100;
+        private var buttonHeight:Number = 100;
         
-        private var loadingIndicatorColor:Number = 0x666666;
+        private var loadingIndicatorColor:Number = 0x336666;
         private var loadingIndicatorUpdateInterval:Number = 400;
         
-        private var progressIndicatorColor:Number = 0xFF0000;
+        private var progressIndicatorColor:Number = 0x61AC00;
         private var progressIndicatorUpdateInterval:Number = 400;
         
-		private var url:String;
-		private var imageUrl:String;
-		private var backgroundUrl:String;
+		private var soundFile:String;
+		private var maskFile:String;
+		private var backFile:String;
         private var playerID:String;
         
 		// end flashvars
@@ -83,9 +83,9 @@ package {
             
 			StageReference.setStage(stage);
 			
-			url = FlashVarUtil.getValue('url');
-			imageUrl = FlashVarUtil.getValue('imageUrl');
-			backgroundUrl = FlashVarUtil.getValue('backgroundUrl');
+			soundFile = FlashVarUtil.getValue('soundFile');
+			maskFile = FlashVarUtil.getValue('maskFile');
+			backFile = FlashVarUtil.getValue('backFile');
 			playerID = FlashVarUtil.getValue('playerID');
 			
 			var optionalVars:Array = ['playerWidth', 'playerHeight', 'playerBackgroundColor',
@@ -131,16 +131,16 @@ package {
             createLoadingSprite();
             createProgressLine();
 			
-			_bgLoad = new ImageLoad(backgroundUrl);
+			_bgLoad = new ImageLoad(backFile);
 			_bgLoad.addEventListener(LoadEvent.COMPLETE, function(event:LoadEvent):void {
-				bgSprite = new CasaSprite();
+                bgSprite = new CasaSprite();
 				bgSprite.cacheAsBitmap = true;
 				with (bgSprite.graphics) {
 					beginBitmapFill(_bgLoad.contentAsBitmapData);
 					drawRect(0, 0, playerWidth, playerHeight);
 					endFill();
 				}
-				_imageLoad = new ImageLoad(imageUrl);
+				_imageLoad = new ImageLoad(maskFile);
 				_imageLoad.addEventListener(LoadEvent.COMPLETE, function(event:LoadEvent):void {
 					_imageLoad.loaderInfo.content.width = playerWidth - buttonWidth;
 					_imageLoad.loaderInfo.content.height = playerHeight;
@@ -252,7 +252,7 @@ package {
             stopped = false;
             paused = false;
             position = 0;
-            var request:URLRequest = new URLRequest(url);
+            var request:URLRequest = new URLRequest(soundFile);
             soundFactory = new Sound();
             soundFactory.load(request);
             song = soundFactory.play();
