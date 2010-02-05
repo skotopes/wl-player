@@ -1,16 +1,14 @@
 package {
 
-    import flash.system.Security;
     import flash.external.ExternalInterface;
     import flash.display.BitmapData;
     import flash.display.Loader;
-    import flash.display.Sprite;
     import flash.display.StageAlign;
     import flash.display.StageScaleMode;
+    import flash.display.MovieClip;
     import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
-	import flash.events.ProgressEvent;
     import flash.media.Sound;
     import flash.media.SoundChannel;
     import flash.net.URLRequest;
@@ -21,10 +19,17 @@ package {
 	import org.casalib.display.CasaSprite;
 	import org.casalib.display.CasaMovieClip;
 	import org.casalib.load.ImageLoad;
+    import org.casalib.load.SwfLoad;
+    import org.casalib.load.CasaLoader;
 	import org.casalib.events.LoadEvent;
-		
 	
-    public class WlPlayer extends CasaMovieClip {
+    import ru.barbuza.EventJoin;
+    import ru.barbuza.JoinEvent;
+    
+
+	// import mx.core.BitmapAsset;
+
+	public class WlPlayer extends CasaMovieClip {
 
 		// fashvars
 		
@@ -45,6 +50,8 @@ package {
 		private var maskFile:String;
 		private var backFile:String;
         private var playerID:String;
+        private var playSwf:String;
+        private var pauseSwf:String;
         
 		// end flashvars
 		
@@ -66,27 +73,24 @@ package {
         private var progressUpdateTimer:Timer;
         private var loadingProgress:Number;
         private var loadingUpdateTimer:Timer;
-        private var btnSprite:CasaSprite;
-		private var _imageLoad:ImageLoad;
-		private var _bgLoad:ImageLoad;
-		
-        [Embed(source='../assets/play.png')]
-        private var playImg:Class;
-        private var playBitmap:BitmapData;
         
-        [Embed(source='../assets/pause.png')]
-        private var pauseImg:Class;
-        private var pauseBitmap:BitmapData; 
+        private var _playMovie:Loader;
+        private var _pauseMovie:Loader;
         
 		
         public function WlPlayer() {
             
 			StageReference.setStage(stage);
 			
-			soundFile = FlashVarUtil.getValue('soundFile');
-			maskFile = FlashVarUtil.getValue('maskFile');
-			backFile = FlashVarUtil.getValue('backFile');
-			playerID = FlashVarUtil.getValue('playerID');
+            var requiredVars:Array = ['soundFile', 'maskFile', 'backFile', 'playerID',
+                                      'playSwf', 'pauseSwf'];
+
+            requiredVars.map(function(name:String, index:Number, all:Array):void {
+                if (! FlashVarUtil.hasKey(name)) {
+                    throw new Error('param ' + name + ' is required'); 
+                }
+                this[name] = FlashVarUtil.getValue(name);
+            }, this);
 			
 			var optionalVars:Array = ['playerWidth', 'playerHeight', 'playerBackgroundColor',
 									  'buttonWidth', 'buttonHeight',
@@ -105,6 +109,7 @@ package {
                 scaleMode = StageScaleMode.NO_SCALE;
                 addEventListener(MouseEvent.CLICK, onMouseClick);
             }
+            
             with (graphics) {
                 beginFill(playerBackgroundColor);
                 drawRect(0, 0, playerWidth, playerHeight);
@@ -114,52 +119,71 @@ package {
             loadingWidth = playerWidth - buttonWidth;
             loadingY = playerHeight;
             
-            playBitmap = new playImg().bitmapData;
-            pauseBitmap = new pauseImg().bitmapData;
-            btnSprite = new CasaSprite();
-            addChild(btnSprite);
             
-            progressUpdateTimer = new Timer(progressIndicatorUpdateInterval);
-            progressUpdateTimer.addEventListener(TimerEvent.TIMER,
-                                                 drawProgressLine);
+            var loaderJoin:EventJoin = new EventJoin(4);
             
-            loadingUpdateTimer = new Timer(loadingIndicatorUpdateInterval);
-            loadingUpdateTimer.addEventListener(TimerEvent.TIMER,
-                                                onLoadProgress);
+            var _playLoad:SwfLoad = new SwfLoad(playSwf);
+            var _pauseLoad:SwfLoad = new SwfLoad(pauseSwf);
+            var _imageLoad:ImageLoad = new ImageLoad(maskFile);
+            var _bgLoad:ImageLoad = new ImageLoad(backFile);
             
-            drawPlay();
-            createLoadingSprite();
-            createProgressLine();
-			
-			_bgLoad = new ImageLoad(backFile);
-			_bgLoad.addEventListener(LoadEvent.COMPLETE, function(event:LoadEvent):void {
+            _playLoad.addEventListener(LoadEvent.COMPLETE, loaderJoin.join);
+            _pauseLoad.addEventListener(LoadEvent.COMPLETE, loaderJoin.join);
+            _imageLoad.addEventListener(LoadEvent.COMPLETE, loaderJoin.join);
+            _bgLoad.addEventListener(LoadEvent.COMPLETE, loaderJoin.join);
+            
+            loaderJoin.addEventListener(JoinEvent.JOIN, function(event:JoinEvent):void {
+                
+                // play, pause, mask and background are loaded at this moment
+                
                 bgSprite = new CasaSprite();
-				bgSprite.cacheAsBitmap = true;
-				with (bgSprite.graphics) {
-					beginBitmapFill(_bgLoad.contentAsBitmapData);
-					drawRect(0, 0, playerWidth, playerHeight);
-					endFill();
-				}
-				_imageLoad = new ImageLoad(maskFile);
-				_imageLoad.addEventListener(LoadEvent.COMPLETE, function(event:LoadEvent):void {
-					_imageLoad.loaderInfo.content.width = playerWidth - buttonWidth;
-					_imageLoad.loaderInfo.content.height = playerHeight;
-					var maskMc:CasaMovieClip = new CasaMovieClip();
-					maskMc.x = buttonWidth;
-					maskMc.addChild(_imageLoad.loader);
-					maskMc.cacheAsBitmap = true;
-					addChild(maskMc);
-					bgSprite.mask = maskMc;
-					addChild(bgSprite);
-					setChildIndex(progressLine, numChildren - 1);
-				});
-				_imageLoad.start();
-			});
-			_bgLoad.start();
-			
+                bgSprite.cacheAsBitmap = true;
+                with (bgSprite.graphics) {
+                    beginBitmapFill(_bgLoad.contentAsBitmapData);
+                    drawRect(0, 0, playerWidth, playerHeight);
+                    endFill();
+                }
+                
+                _imageLoad.loaderInfo.content.width = playerWidth - buttonWidth;
+                _imageLoad.loaderInfo.content.height = playerHeight;
+                var maskMc:CasaMovieClip = new CasaMovieClip();
+                maskMc.x = buttonWidth;
+                maskMc.addChild(_imageLoad.loader);
+                maskMc.cacheAsBitmap = true;
+                addChild(maskMc);
+                bgSprite.mask = maskMc;
+                addChild(bgSprite);
+
+                _playMovie = _playLoad.loader;
+                _pauseMovie = _pauseLoad.loader;                               
+                _playMovie.visible = false;
+                _pauseMovie.visible = false;
+                addChild(_playMovie);
+                addChild(_pauseMovie);
+                drawPlay();
+                
+                createLoadingSprite();
+                createProgressLine();
+                
+                progressUpdateTimer = new Timer(progressIndicatorUpdateInterval);
+                progressUpdateTimer.addEventListener(TimerEvent.TIMER,
+                    drawProgressLine);
+                
+                loadingUpdateTimer = new Timer(loadingIndicatorUpdateInterval);
+                loadingUpdateTimer.addEventListener(TimerEvent.TIMER,
+                    onLoadProgress);
+
+            });
+            
+            _playLoad.start();
+            _pauseLoad.start();
+            _imageLoad.start();
+            _bgLoad.start();
+            						
 			ExternalInterface.addCallback('pause', function():void {
 			    _pause();
 			});
+            
 			ExternalInterface.addCallback('play', function():void {
                 if (!stopped) {
                     _play();
@@ -178,7 +202,11 @@ package {
             return soundFactory && 
                 soundFactory.bytesLoaded == soundFactory.bytesTotal;
         }
-
+        
+        private function get partLoaded():Number {
+            return .5;
+            return soundFactory.bytesLoaded / soundFactory.bytesTotal;
+        }
 
         private function createProgressLine():void {
             progressLine = new CasaSprite();
@@ -198,37 +226,23 @@ package {
         }
         
         private function drawPause():void {
-            with (btnSprite.graphics) {
-                clear();
-                beginBitmapFill(pauseBitmap);
-                drawRect(0, 0, buttonWidth, buttonHeight);
-                endFill();
-            }
+            _playMovie.visible = false;
+            _pauseMovie.visible = true;
         }
         
         private function drawPlay():void {
-            with (btnSprite.graphics) {
-                clear();
-                beginBitmapFill(playBitmap);
-                drawRect(0, 0, buttonWidth, buttonHeight);
-                endFill();
-            }
+            _pauseMovie.visible = false;
+            _playMovie.visible = true;
         }
                 
         private function onMouseClick(event:MouseEvent):void {
             if (event.stageX <= buttonWidth && event.stageY <= buttonHeight) {
                 pause();
-            } else if (!paused && !stopped &&
-                       event.stageX <= playerWidth &&
-                       event.stageY <= playerHeight) {
-                if (loaded) {
-                    var requestedPos:Number = (event.stageX - buttonWidth) /
-                        (playerWidth - buttonWidth);
-                    if (soundFactory.bytesLoaded >
-                        soundFactory.bytesTotal * requestedPos) {
-                        song.stop();
-                        song = soundFactory.play(length * requestedPos);
-                    }
+            } else if (!paused && !stopped && event.stageX <= playerWidth && event.stageY <= playerHeight) {
+                var requestedPos:Number = (event.stageX - buttonWidth) / (playerWidth - buttonWidth);
+                if (soundFactory.bytesLoaded > soundFactory.bytesTotal * requestedPos) {
+                    song.stop();
+                    song = soundFactory.play(length * requestedPos);
                 }
             }
         }
