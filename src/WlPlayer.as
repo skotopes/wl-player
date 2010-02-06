@@ -156,6 +156,8 @@ package {
 
                 _playMovie = _playLoad.loader;
                 _pauseMovie = _pauseLoad.loader;
+                _playMovie.width = _pauseMovie.width = buttonWidth;
+                _playMovie.height = _pauseMovie.height = buttonHeight;
                 _playMovie.visible = false;
                 _pauseMovie.visible = false;
                 addChild(_playMovie);
