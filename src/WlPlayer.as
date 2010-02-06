@@ -205,11 +205,6 @@ package {
                 soundFactory.bytesLoaded == soundFactory.bytesTotal;
         }
         
-        private function get partLoaded():Number {
-            return .5;
-            return soundFactory.bytesLoaded / soundFactory.bytesTotal;
-        }
-
         private function createProgressLine():void {
             progressLine = new CasaSprite();
             progressLine.x = buttonWidth;
@@ -240,11 +235,12 @@ package {
         private function onMouseClick(event:MouseEvent):void {
             if (event.stageX <= buttonWidth && event.stageY <= buttonHeight) {
                 pause();
-            } else if (!paused && !stopped && event.stageX <= playerWidth && event.stageY <= playerHeight) {
+            } else if (!stopped && event.stageX <= playerWidth && event.stageY <= playerHeight) {
                 var requestedPos:Number = (event.stageX - buttonWidth) / (playerWidth - buttonWidth);
                 if (soundFactory.bytesLoaded > soundFactory.bytesTotal * requestedPos) {
                     song.stop();
-                    song = soundFactory.play(length * requestedPos);
+                    position = length * requestedPos;
+                    _play();
                 }
             }
         }
