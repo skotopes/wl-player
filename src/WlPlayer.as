@@ -7,32 +7,32 @@ package {
     import flash.display.StageScaleMode;
     import flash.display.MovieClip;
     import flash.events.Event;
-	import flash.events.MouseEvent;
-	import flash.events.TimerEvent;
+    import flash.events.MouseEvent;
+    import flash.events.TimerEvent;
     import flash.media.Sound;
     import flash.media.SoundChannel;
     import flash.net.URLRequest;
     import flash.utils.Timer;
-	
-	import org.casalib.util.StageReference;
-	import org.casalib.util.FlashVarUtil;
-	import org.casalib.display.CasaSprite;
-	import org.casalib.display.CasaMovieClip;
-	import org.casalib.load.ImageLoad;
+    
+    import org.casalib.util.StageReference;
+    import org.casalib.util.FlashVarUtil;
+    import org.casalib.display.CasaSprite;
+    import org.casalib.display.CasaMovieClip;
+    import org.casalib.load.ImageLoad;
     import org.casalib.load.SwfLoad;
     import org.casalib.load.CasaLoader;
-	import org.casalib.events.LoadEvent;
-	
+    import org.casalib.events.LoadEvent;
+    
     import ru.barbuza.EventJoin;
     import ru.barbuza.JoinEvent;
     
 
-	// import mx.core.BitmapAsset;
+    // import mx.core.BitmapAsset;
 
-	public class WlPlayer extends CasaMovieClip {
+    public class WlPlayer extends CasaMovieClip {
 
-		// fashvars
-		
+        // fashvars
+        
         private var playerWidth:Number = 600;
         private var playerHeight:Number = 100;
         private var playerBackgroundColor:Number = 0xFFFFFF;
@@ -46,20 +46,20 @@ package {
         private var progressIndicatorColor:Number = 0x61AC00;
         private var progressIndicatorUpdateInterval:Number = 400;
         
-		private var soundFile:String;
-		private var maskFile:String;
-		private var backFile:String;
+        private var soundFile:String;
+        private var maskFile:String;
+        private var backFile:String;
         private var playerID:String;
         private var playSwf:String;
         private var pauseSwf:String;
         
-		// end flashvars
-		
-		
+        // end flashvars
+        
+        
         private var loadingWidth:Number;
         private var loadingY:Number;
         
-		private var bgSprite:CasaSprite;
+        private var bgSprite:CasaSprite;
         private var playStarted:Boolean = false;
         private var song:SoundChannel;
         private var request:URLRequest;
@@ -77,33 +77,33 @@ package {
         private var _playMovie:Loader;
         private var _pauseMovie:Loader;
         
-		
+        
         public function WlPlayer() {
             
-			StageReference.setStage(stage);
-			
+            StageReference.setStage(stage);
+            
             var requiredVars:Array = ['soundFile', 'maskFile', 'backFile', 'playerID',
                                       'playSwf', 'pauseSwf'];
-
+            
             requiredVars.map(function(name:String, index:Number, all:Array):void {
                 if (! FlashVarUtil.hasKey(name)) {
                     throw new Error('param ' + name + ' is required'); 
                 }
                 this[name] = FlashVarUtil.getValue(name);
             }, this);
-			
-			var optionalVars:Array = ['playerWidth', 'playerHeight', 'playerBackgroundColor',
-									  'buttonWidth', 'buttonHeight',
-									  'loadingIndicatorColor', 'loadingIndicatorUpdateInterval',
-									  'progressIndicatorColor',
-									  'progressIndicatorUpdateInterval'];
-			
-			optionalVars.map(function(name:String, index:Number, all:Array):void {
-				if (FlashVarUtil.hasKey(name)) {
-					this[name] = Number(FlashVarUtil.getValue(name));
-				}
-			}, this);
-			
+            
+            var optionalVars:Array = ['playerWidth', 'playerHeight', 'playerBackgroundColor',
+                                      'buttonWidth', 'buttonHeight',
+                                      'loadingIndicatorColor', 'loadingIndicatorUpdateInterval',
+                                      'progressIndicatorColor',
+                                      'progressIndicatorUpdateInterval'];
+            
+            optionalVars.map(function(name:String, index:Number, all:Array):void {
+                if (FlashVarUtil.hasKey(name)) {
+                    this[name] = Number(FlashVarUtil.getValue(name));
+                }
+            }, this);
+            
             with (StageReference.getStage()) {
                 align = StageAlign.TOP_LEFT;
                 scaleMode = StageScaleMode.NO_SCALE;
@@ -155,7 +155,7 @@ package {
                 addChild(bgSprite);
 
                 _playMovie = _playLoad.loader;
-                _pauseMovie = _pauseLoad.loader;                               
+                _pauseMovie = _pauseLoad.loader;
                 _playMovie.visible = false;
                 _pauseMovie.visible = false;
                 addChild(_playMovie);
@@ -179,19 +179,21 @@ package {
             _pauseLoad.start();
             _imageLoad.start();
             _bgLoad.start();
-            						
-			ExternalInterface.addCallback('pause', function():void {
-			    _pause();
-			});
+                                    
+            ExternalInterface.addCallback('pause', function():void {
+                if (playStarted) {
+                    _pause();
+                }
+            });
             
-			ExternalInterface.addCallback('play', function():void {
+            ExternalInterface.addCallback('play', function():void {
                 if (!stopped) {
                     _play();
                 } else {
                     playMP3();
                 }
-			});
-			
+            });
+            
         }
                 
         private function get length():Number {
