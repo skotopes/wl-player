@@ -138,6 +138,8 @@ package {
                 
                 bgSprite = new CasaSprite();
                 bgSprite.cacheAsBitmap = true;
+                _bgLoad.loaderInfo.content.width = playerWidth - buttonWidth;
+                _bgLoad.loaderInfo.content.height = playerHeight;
                 with (bgSprite.graphics) {
                     beginBitmapFill(_bgLoad.contentAsBitmapData);
                     drawRect(0, 0, playerWidth, playerHeight);
