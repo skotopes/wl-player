@@ -6,6 +6,7 @@ package {
     import flash.display.StageAlign;
     import flash.display.StageScaleMode;
     import flash.display.MovieClip;
+    import flash.display.Sprite;
     import flash.events.Event;
     import flash.events.MouseEvent;
     import flash.events.TimerEvent;
@@ -37,8 +38,9 @@ package {
         private var playerHeight:Number = 100;
         private var playerBackgroundColor:Number = 0xFFFFFF;
         
-        private var buttonWidth:Number = 100;
-        private var buttonHeight:Number = 100;
+        private var buttonWidth:Number = 80;
+        private var buttonHeight:Number = 80;
+        private var buttonOffset:Number = 20;
         
         private var loadingIndicatorColor:Number = 0x336666;
         private var loadingIndicatorUpdateInterval:Number = 400;
@@ -74,8 +76,14 @@ package {
         private var loadingProgress:Number;
         private var loadingUpdateTimer:Timer;
         
-        private var _playMovie:Loader;
-        private var _pauseMovie:Loader;
+        private var _playMovie:Sprite;
+        private var _pauseMovie:Sprite;
+        
+        [Embed(source='../assets/play.svg')]
+        private var playSvg:Class;
+        
+        [Embed(source='../assets/pause.svg')]
+        private var pauseSvg:Class;
         
         
         public function WlPlayer() {
@@ -93,7 +101,7 @@ package {
             }, this);
             
             var optionalVars:Array = ['playerWidth', 'playerHeight', 'playerBackgroundColor',
-                                      'buttonWidth', 'buttonHeight',
+                                      'buttonWidth', 'buttonHeight', 'buttonOffset',
                                       'loadingIndicatorColor', 'loadingIndicatorUpdateInterval',
                                       'progressIndicatorColor',
                                       'progressIndicatorUpdateInterval'];
@@ -116,19 +124,15 @@ package {
                 endFill();
             }
             
-            loadingWidth = playerWidth - buttonWidth;
+            loadingWidth = playerWidth - buttonWidth - buttonOffset;
             loadingY = playerHeight;
             
             
-            var loaderJoin:EventJoin = new EventJoin(4);
+            var loaderJoin:EventJoin = new EventJoin(2);
             
-            var _playLoad:SwfLoad = new SwfLoad(playSwf);
-            var _pauseLoad:SwfLoad = new SwfLoad(pauseSwf);
             var _imageLoad:ImageLoad = new ImageLoad(maskFile);
             var _bgLoad:ImageLoad = new ImageLoad(backFile);
             
-            _playLoad.addEventListener(LoadEvent.COMPLETE, loaderJoin.join);
-            _pauseLoad.addEventListener(LoadEvent.COMPLETE, loaderJoin.join);
             _imageLoad.addEventListener(LoadEvent.COMPLETE, loaderJoin.join);
             _bgLoad.addEventListener(LoadEvent.COMPLETE, loaderJoin.join);
             
@@ -138,7 +142,7 @@ package {
                 
                 bgSprite = new CasaSprite();
                 bgSprite.cacheAsBitmap = true;
-                _bgLoad.loaderInfo.content.width = playerWidth - buttonWidth;
+                _bgLoad.loaderInfo.content.width = playerWidth - buttonWidth - buttonOffset;
                 _bgLoad.loaderInfo.content.height = playerHeight;
                 with (bgSprite.graphics) {
                     beginBitmapFill(_bgLoad.contentAsBitmapData);
@@ -146,18 +150,18 @@ package {
                     endFill();
                 }
                 
-                _imageLoad.loaderInfo.content.width = playerWidth - buttonWidth;
+                _imageLoad.loaderInfo.content.width = playerWidth - buttonWidth - buttonOffset;
                 _imageLoad.loaderInfo.content.height = playerHeight;
                 var maskMc:CasaMovieClip = new CasaMovieClip();
-                maskMc.x = buttonWidth;
+                maskMc.x = buttonWidth + buttonOffset;
                 maskMc.addChild(_imageLoad.loader);
                 maskMc.cacheAsBitmap = true;
                 addChild(maskMc);
                 bgSprite.mask = maskMc;
                 addChild(bgSprite);
 
-                _playMovie = _playLoad.loader;
-                _pauseMovie = _pauseLoad.loader;
+                _playMovie = new playSvg();
+                _pauseMovie = new pauseSvg();
                 _playMovie.width = _pauseMovie.width = buttonWidth;
                 _playMovie.height = _pauseMovie.height = buttonHeight;
                 _playMovie.visible = false;
@@ -179,8 +183,6 @@ package {
 
             });
             
-            _playLoad.start();
-            _pauseLoad.start();
             _imageLoad.start();
             _bgLoad.start();
                                     
@@ -211,16 +213,16 @@ package {
         
         private function createProgressLine():void {
             progressLine = new CasaSprite();
-            progressLine.x = buttonWidth;
+            progressLine.x = buttonWidth + buttonOffset;
             addChild(progressLine);
         }
         
         private function createLoadingSprite():void {
             loadingSprite = new CasaSprite();
-            loadingSprite.x = buttonWidth;
+            loadingSprite.x = buttonWidth + buttonOffset;
             with (loadingSprite.graphics) {
                 beginFill(loadingIndicatorColor, .5);
-                drawRect(0, 0, playerWidth - buttonWidth, playerHeight);
+                drawRect(0, 0, playerWidth - buttonWidth - buttonOffset, playerHeight);
                 endFill();
             }
             addChild(loadingSprite);
@@ -240,7 +242,7 @@ package {
             if (event.stageX <= buttonWidth && event.stageY <= buttonHeight) {
                 pause();
             } else if (!stopped && event.stageX <= playerWidth && event.stageY <= playerHeight) {
-                var requestedPos:Number = (event.stageX - buttonWidth) / (playerWidth - buttonWidth);
+                var requestedPos:Number = (event.stageX - buttonWidth - buttonOffset) / (playerWidth - buttonWidth - buttonOffset);
                 if (soundFactory.bytesLoaded > soundFactory.bytesTotal * requestedPos) {
                     song.stop();
                     position = length * requestedPos;
@@ -254,7 +256,7 @@ package {
                 clear();
                 beginFill(progressIndicatorColor, .5);
                 drawRect(0, 0, song.position *
-                    (playerWidth - buttonWidth) / length, playerHeight);
+                    (playerWidth - buttonWidth - buttonOffset) / length, playerHeight);
                 endFill();
             }
         }
@@ -279,7 +281,7 @@ package {
         }
                 
         private function onLoadProgress(event:TimerEvent):void {
-            loadingSprite.x = buttonWidth + soundFactory.bytesLoaded * loadingWidth / soundFactory.bytesTotal;
+            loadingSprite.x = buttonWidth + buttonWidth + soundFactory.bytesLoaded * loadingWidth / soundFactory.bytesTotal;
             if (soundFactory.bytesLoaded == soundFactory.bytesTotal) {
                 loadingUpdateTimer.stop();
             }
