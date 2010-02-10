@@ -1,2 +1,14 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg id="svg3105" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 100 100" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/"><metadata id="metadata3102"><rdf:RDF><cc:Work rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/><dc:title/></cc:Work></rdf:RDF></metadata><defs id="defs3109"/><g id="g3115" transform="matrix(1.25,0,0,-1.25,0,100)"><g id="g3167" transform="translate(57,72)"><path id="path3169" fill-rule="nonzero" fill="#373535" d="m0,0-33,0c-8.25,0-15-6.75-15-15v-33c0-8.25,6.75-15,15-15h33c8.25,0,15,6.75,15,15v33c0,8.25-6.75,15-15,15m0-8c3.859,0,7-3.14,7-7v-33c0-3.859-3.141-7-7-7h-33c-3.86,0-7,3.141-7,7v33c0,3.86,3.14,7,7,7h33"/></g><g id="g3213" transform="translate(30.7915,23.1201)"><path id="path3215" fill-rule="nonzero" fill="#373535" d="m0,0c-1.866-1.166-3.392-0.32-3.392,1.88v31c0,2.2,1.526,3.046,3.392,1.88l24.415-15.26c1.865-1.166,1.865-3.074,0-4.24l-24.415-15.26z"/></g><g id="g3217" transform="translate(30.7915,23.1201)"><path id="path3219" stroke-linejoin="miter" style="stroke-dasharray:none;" d="m0,0c-1.866-1.166-3.392-0.32-3.392,1.88v31c0,2.2,1.526,3.046,3.392,1.88l24.415-15.26c1.865-1.166,1.865-3.074,0-4.24l-24.415-15.26z" stroke="#373535" stroke-linecap="butt" stroke-miterlimit="4" stroke-width="4" fill="none"/></g></g></svg>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 14.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 43363)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="button" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="80px" height="80px"
+	 viewBox="0 0 80 80" enable-background="new 0 0 80 80" xml:space="preserve">
+<path id="buttonBorder" fill="#373535" d="M57,8H24C15.75,8,9,14.75,9,23v33c0,8.25,6.75,15,15,15h33c8.25,0,15-6.75,15-15V23
+	C72,14.75,65.25,8,57,8 M57,16c3.859,0,7,3.14,7,7v33c0,3.859-3.141,7-7,7H24c-3.86,0-7-3.141-7-7V23c0-3.86,3.14-7,7-7H57"/>
+<path id="playIconFill" fill="#373535" d="M30.792,56.88c-1.866,1.166-3.392,0.319-3.392-1.88V24c0-2.2,1.526-3.046,3.392-1.88
+	l24.416,15.26c1.864,1.166,1.864,3.074,0,4.24L30.792,56.88z"/>
+<path id="playIconBorder" fill="none" stroke="#373535" stroke-width="4" d="M30.792,56.88c-1.866,1.166-3.392,0.319-3.392-1.88V24
+	c0-2.2,1.526-3.046,3.392-1.88l24.416,15.26c1.864,1.166,1.864,3.074,0,4.24L30.792,56.88z"/>
+</svg>
