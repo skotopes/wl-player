@@ -1,14 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="iso-8859-1"?>
 <!-- Generator: Adobe Illustrator 14.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 43363)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1"
 	 id="button" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"
 	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="80px" height="80px"
-	 viewBox="0 0 80 80" enable-background="new 0 0 80 80" xml:space="preserve">
-<path id="buttonBorder" fill="#373535" d="M57,8H24C15.75,8,9,14.75,9,23v33c0,8.25,6.75,15,15,15h33c8.25,0,15-6.75,15-15V23
-	C72,14.75,65.25,8,57,8 M57,16c3.859,0,7,3.14,7,7v33c0,3.859-3.141,7-7,7H24c-3.86,0-7-3.141-7-7V23c0-3.86,3.14-7,7-7H57"/>
-<path id="playIconFill" fill="#373535" d="M30.792,56.88c-1.866,1.166-3.392,0.319-3.392-1.88V24c0-2.2,1.526-3.046,3.392-1.88
-	l24.416,15.26c1.864,1.166,1.864,3.074,0,4.24L30.792,56.88z"/>
-<path id="playIconBorder" fill="none" stroke="#373535" stroke-width="4" d="M30.792,56.88c-1.866,1.166-3.392,0.319-3.392-1.88V24
-	c0-2.2,1.526-3.046,3.392-1.88l24.416,15.26c1.864,1.166,1.864,3.074,0,4.24L30.792,56.88z"/>
+	 viewBox="0 0 80 80" style="enable-background:new 0 0 80 80;" xml:space="preserve">
+<path id="buttonBorder" style="fill:#373535;" d="M60.952,0H19.048C8.571,0,0,8.571,0,19.048v41.904C0,71.429,8.571,80,19.048,80
+	h41.904C71.429,80,80,71.429,80,60.952V19.048C80,8.571,71.429,0,60.952,0 M60.952,10.159c4.901,0,8.889,3.987,8.889,8.889v41.904
+	c0,4.901-3.987,8.889-8.889,8.889H19.048c-4.902,0-8.889-3.987-8.889-8.889V19.048c0-4.902,3.987-8.889,8.889-8.889H60.952"/>
+<path id="playIconFill" style="fill:#373535;" d="M28.181,61.357C25.881,62.794,24,61.748,24,59.045V20.954
+	c0-2.705,1.881-3.742,4.181-2.309l30.097,18.752c2.297,1.43,2.297,3.774,0,5.212L28.181,61.357z"/>
+<path id="playIconBorder" style="fill:none;stroke:#373535;stroke-width:4;" d="M28.181,61.357C25.881,62.794,24,61.748,24,59.045
+	V20.954c0-2.705,1.881-3.742,4.181-2.309l30.097,18.752c2.297,1.43,2.297,3.774,0,5.212L28.181,61.357z"/>
 </svg>

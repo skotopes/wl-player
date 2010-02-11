@@ -1,14 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="iso-8859-1"?>
 <!-- Generator: Adobe Illustrator 14.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 43363)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1"
 	 id="button" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"
 	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="80px" height="80px"
-	 viewBox="0 0 80 80" enable-background="new 0 0 80 80" xml:space="preserve">
-<path id="buttonBorder" fill="#373535" d="M57,8H24C15.75,8,9,14.75,9,23v33c0,8.25,6.75,15,15,15h33c8.25,0,15-6.75,15-15V23
-	C72,14.75,65.25,8,57,8 M57,16c3.859,0,7,3.14,7,7v33c0,3.859-3.141,7-7,7H24c-3.86,0-7-3.141-7-7V23c0-3.86,3.14-7,7-7H57"/>
-<path id="pauseIconPart1" fill="none" stroke="#373535" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" d="
-	M29.75,26v27"/>
-<path id="pauseIconPart0" fill="none" stroke="#373535" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" d="
-	M51.25,26v27"/>
+	 viewBox="0 0 80 80" style="enable-background:new 0 0 80 80;" xml:space="preserve">
+<path id="buttonBorder" style="fill:#373535;" d="M60.953,0H19.048C8.571,0,0,8.572,0,19.048v41.905C0,71.43,8.571,80,19.048,80
+	h41.905C71.43,80,80,71.43,80,60.953V19.048C80,8.572,71.43,0,60.953,0 M60.953,10.159c4.9,0,8.889,3.988,8.889,8.889v41.905
+	c0,4.9-3.988,8.889-8.889,8.889H19.048c-4.901,0-8.889-3.988-8.889-8.889V19.048c0-4.901,3.987-8.889,8.889-8.889H60.953"/>
+<path id="pauseIconPart1" style="fill:none;stroke:#373535;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;" d="
+	M25.784,22.019v35.96"/>
+<path id="pauseIconPart0" style="fill:none;stroke:#373535;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;" d="
+	M54.216,22.019v35.96"/>
 </svg>

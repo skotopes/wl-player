@@ -35,12 +35,11 @@ package {
         // fashvars
         
         private var playerWidth:Number = 600;
-        private var playerHeight:Number = 100;
+        private var playerHeight:Number = 80;
         private var playerBackgroundColor:Number = 0xFFFFFF;
         
         private var buttonWidth:Number = 80;
         private var buttonHeight:Number = 80;
-        private var buttonOffset:Number = 20;
         
         private var loadingIndicatorColor:Number = 0x336666;
         private var loadingIndicatorUpdateInterval:Number = 400;
@@ -52,11 +51,8 @@ package {
         private var maskFile:String;
         private var backFile:String;
         private var playerID:String;
-        private var playSwf:String;
-        private var pauseSwf:String;
         
         // end flashvars
-        
         
         private var loadingWidth:Number;
         private var loadingY:Number;
@@ -90,8 +86,8 @@ package {
             
             StageReference.setStage(stage);
             
-            var requiredVars:Array = ['soundFile', 'maskFile', 'backFile', 'playerID',
-                                      'playSwf', 'pauseSwf'];
+            var requiredVars:Array = ['soundFile', 'maskFile',
+                                      'backFile', 'playerID'];
             
             requiredVars.map(function(name:String, index:Number, all:Array):void {
                 if (! FlashVarUtil.hasKey(name)) {
@@ -100,9 +96,11 @@ package {
                 this[name] = FlashVarUtil.getValue(name);
             }, this);
             
-            var optionalVars:Array = ['playerWidth', 'playerHeight', 'playerBackgroundColor',
-                                      'buttonWidth', 'buttonHeight', 'buttonOffset',
-                                      'loadingIndicatorColor', 'loadingIndicatorUpdateInterval',
+            var optionalVars:Array = ['playerWidth', 'playerHeight',
+                                      'buttonWidth', 'buttonHeight',
+                                      'playerBackgroundColor',
+                                      'loadingIndicatorColor',
+                                      'loadingIndicatorUpdateInterval',
                                       'progressIndicatorColor',
                                       'progressIndicatorUpdateInterval'];
             
@@ -124,7 +122,7 @@ package {
                 endFill();
             }
             
-            loadingWidth = playerWidth - buttonWidth - buttonOffset;
+            loadingWidth = playerWidth - buttonWidth;
             loadingY = playerHeight;
             
             
@@ -142,7 +140,7 @@ package {
                 
                 bgSprite = new CasaSprite();
                 bgSprite.cacheAsBitmap = true;
-                _bgLoad.loaderInfo.content.width = playerWidth - buttonWidth - buttonOffset;
+                _bgLoad.loaderInfo.content.width = playerWidth - buttonWidth;
                 _bgLoad.loaderInfo.content.height = playerHeight;
                 with (bgSprite.graphics) {
                     beginBitmapFill(_bgLoad.contentAsBitmapData);
@@ -150,10 +148,10 @@ package {
                     endFill();
                 }
                 
-                _imageLoad.loaderInfo.content.width = playerWidth - buttonWidth - buttonOffset;
+                _imageLoad.loaderInfo.content.width = playerWidth - buttonWidth;
                 _imageLoad.loaderInfo.content.height = playerHeight;
                 var maskMc:CasaMovieClip = new CasaMovieClip();
-                maskMc.x = buttonWidth + buttonOffset;
+                maskMc.x = buttonWidth;
                 maskMc.addChild(_imageLoad.loader);
                 maskMc.cacheAsBitmap = true;
                 addChild(maskMc);
@@ -162,8 +160,12 @@ package {
 
                 _playMovie = new playSvg();
                 _pauseMovie = new pauseSvg();
-                _playMovie.width = _pauseMovie.width = buttonWidth;
-                _playMovie.height = _pauseMovie.height = buttonHeight;
+                // real buttons size now exactly as artboard size
+                // so we have to add additional offset, to keep layout nice
+                _playMovie.x = _pauseMovie.x = 8;
+                _playMovie.y = _pauseMovie.y = 8;                                        
+                _playMovie.width = _pauseMovie.width = buttonWidth - 16;
+                _playMovie.height = _pauseMovie.height = buttonHeight - 16;
                 _playMovie.visible = false;
                 _pauseMovie.visible = false;
                 addChild(_playMovie);
@@ -213,16 +215,16 @@ package {
         
         private function createProgressLine():void {
             progressLine = new CasaSprite();
-            progressLine.x = buttonWidth + buttonOffset;
+            progressLine.x = buttonWidth;
             addChild(progressLine);
         }
         
         private function createLoadingSprite():void {
             loadingSprite = new CasaSprite();
-            loadingSprite.x = buttonWidth + buttonOffset;
+            loadingSprite.x = buttonWidth;
             with (loadingSprite.graphics) {
                 beginFill(loadingIndicatorColor, .5);
-                drawRect(0, 0, playerWidth - buttonWidth - buttonOffset, playerHeight);
+                drawRect(0, 0, playerWidth - buttonWidth, playerHeight);
                 endFill();
             }
             addChild(loadingSprite);
@@ -242,7 +244,7 @@ package {
             if (event.stageX <= buttonWidth && event.stageY <= buttonHeight) {
                 pause();
             } else if (!stopped && event.stageX <= playerWidth && event.stageY <= playerHeight) {
-                var requestedPos:Number = (event.stageX - buttonWidth - buttonOffset) / (playerWidth - buttonWidth - buttonOffset);
+                var requestedPos:Number = (event.stageX - buttonWidth) / (playerWidth - buttonWidth);
                 if (soundFactory.bytesLoaded > soundFactory.bytesTotal * requestedPos) {
                     song.stop();
                     position = length * requestedPos;
@@ -256,7 +258,7 @@ package {
                 clear();
                 beginFill(progressIndicatorColor, .5);
                 drawRect(0, 0, song.position *
-                    (playerWidth - buttonWidth - buttonOffset) / length, playerHeight);
+                    (playerWidth - buttonWidth) / length, playerHeight);
                 endFill();
             }
         }
