@@ -1,63 +1,39 @@
-package {
-
+package {    
     import flash.external.ExternalInterface;
-    import flash.display.BitmapData;
-    import flash.display.Loader;
-    import flash.display.StageAlign;
-    import flash.display.StageScaleMode;
-    import flash.display.MovieClip;
-    import flash.display.Sprite;
-    import flash.events.Event;
-    import flash.events.MouseEvent;
-    import flash.events.TimerEvent;
+    import flash.events.*;
     import flash.media.Sound;
     import flash.media.SoundChannel;
     import flash.net.URLRequest;
     import flash.utils.Timer;
+    import flash.display.BitmapData;
+    import flash.display.Loader;
+    import flash.display.MovieClip;
+    import flash.display.Sprite;
     
-    import org.casalib.util.StageReference;
-    import org.casalib.util.FlashVarUtil;
     import org.casalib.display.CasaSprite;
     import org.casalib.display.CasaMovieClip;
     import org.casalib.load.ImageLoad;
-    import org.casalib.load.SwfLoad;
     import org.casalib.load.CasaLoader;
-    import org.casalib.events.LoadEvent;
-    
-    import ru.barbuza.EventJoin;
-    import ru.barbuza.JoinEvent;
-    
+    import org.casalib.events.LoadEvent;    
+    import org.casalib.util.FlashVarUtil;
+    import org.casalib.util.StageReference;
 
-    // import mx.core.BitmapAsset;
+    import WlGui;
 
     public class WlPlayer extends CasaMovieClip {
-
-        // fashvars
         
+        private var soundFile:String;
+        private var maskFile:String;
+        private var backFile:String;
+        private var playerID:String;
+
         private var playerWidth:Number = 600;
         private var playerHeight:Number = 80;
         private var playerBackgroundColor:Number = 0xFFFFFF;
         
         private var buttonWidth:Number = 80;
         private var buttonHeight:Number = 80;
-        
-        private var loadingIndicatorColor:Number = 0x336666;
-        private var loadingIndicatorUpdateInterval:Number = 400;
-        
-        private var progressIndicatorColor:Number = 0x61AC00;
-        private var progressIndicatorUpdateInterval:Number = 400;
-        
-        private var soundFile:String;
-        private var maskFile:String;
-        private var backFile:String;
-        private var playerID:String;
-        
-        // end flashvars
-        
-        private var loadingWidth:Number;
-        private var loadingY:Number;
-        
-        private var bgSprite:CasaSprite;
+
         private var playStarted:Boolean = false;
         private var song:SoundChannel;
         private var request:URLRequest;
@@ -66,26 +42,16 @@ package {
         private var position:Number;
         private var soundFactory:Sound;
         private var imageLoader:Loader;
-        private var progressLine:CasaSprite;
-        private var loadingSprite:CasaSprite;
         private var progressUpdateTimer:Timer;
         private var loadingProgress:Number;
         private var loadingUpdateTimer:Timer;
         
-        private var _playMovie:Sprite;
-        private var _pauseMovie:Sprite;
-        
-        [Embed(source='../assets/play.svg')]
-        private var playSvg:Class;
-        
-        [Embed(source='../assets/pause.svg')]
-        private var pauseSvg:Class;
-        
+        private var playerGui:WlGui;
         
         public function WlPlayer() {
             
             StageReference.setStage(stage);
-            
+
             var requiredVars:Array = ['soundFile', 'maskFile',
                                       'backFile', 'playerID'];
             
@@ -110,84 +76,19 @@ package {
                 }
             }, this);
             
-            with (StageReference.getStage()) {
-                align = StageAlign.TOP_LEFT;
-                scaleMode = StageScaleMode.NO_SCALE;
-                addEventListener(MouseEvent.CLICK, onMouseClick);
-            }
-            
-            with (graphics) {
-                beginFill(playerBackgroundColor);
-                drawRect(0, 0, playerWidth, playerHeight);
-                endFill();
-            }
-            
-            loadingWidth = playerWidth - buttonWidth;
-            loadingY = playerHeight;
-            
-            
-            var loaderJoin:EventJoin = new EventJoin(2);
-            
-            var _imageLoad:ImageLoad = new ImageLoad(maskFile);
-            var _bgLoad:ImageLoad = new ImageLoad(backFile);
-            
-            _imageLoad.addEventListener(LoadEvent.COMPLETE, loaderJoin.join);
-            _bgLoad.addEventListener(LoadEvent.COMPLETE, loaderJoin.join);
-            
-            loaderJoin.addEventListener(JoinEvent.JOIN, function(event:JoinEvent):void {
-                
-                // play, pause, mask and background are loaded at this moment
-                
-                bgSprite = new CasaSprite();
-                bgSprite.cacheAsBitmap = true;
-                _bgLoad.loaderInfo.content.width = playerWidth - buttonWidth;
-                _bgLoad.loaderInfo.content.height = playerHeight;
-                with (bgSprite.graphics) {
-                    beginBitmapFill(_bgLoad.contentAsBitmapData);
-                    drawRect(0, 0, playerWidth, playerHeight);
-                    endFill();
-                }
-                
-                _imageLoad.loaderInfo.content.width = playerWidth - buttonWidth;
-                _imageLoad.loaderInfo.content.height = playerHeight;
-                var maskMc:CasaMovieClip = new CasaMovieClip();
-                maskMc.x = buttonWidth;
-                maskMc.addChild(_imageLoad.loader);
-                maskMc.cacheAsBitmap = true;
-                addChild(maskMc);
-                bgSprite.mask = maskMc;
-                addChild(bgSprite);
+            playerGui = new WlGui(playerWidth, playerHeight);
 
-                _playMovie = new playSvg();
-                _pauseMovie = new pauseSvg();
-                // real buttons size now exactly as artboard size
-                // so we have to add additional offset, to keep layout nice
-                _playMovie.x = _pauseMovie.x = 8;
-                _playMovie.y = _pauseMovie.y = 8;                                        
-                _playMovie.width = _pauseMovie.width = buttonWidth - 16;
-                _playMovie.height = _pauseMovie.height = buttonHeight - 16;
-                _playMovie.visible = false;
-                _pauseMovie.visible = false;
-                addChild(_playMovie);
-                addChild(_pauseMovie);
-                drawPlay();
-                
-                createLoadingSprite();
-                createProgressLine();
-                
-                progressUpdateTimer = new Timer(progressIndicatorUpdateInterval);
-                progressUpdateTimer.addEventListener(TimerEvent.TIMER,
-                    drawProgressLine);
-                
-                loadingUpdateTimer = new Timer(loadingIndicatorUpdateInterval);
-                loadingUpdateTimer.addEventListener(TimerEvent.TIMER,
-                    onLoadProgress);
-
-            });
+            addChild(playerGui);
             
-            _imageLoad.start();
-            _bgLoad.start();
-                                    
+            with (playerGui.guiButtons) {
+                addEventListener(MouseEvent.CLICK, onSSWButtonClick);
+            }
+
+            with (playerGui.guiHistogram) {
+                addEventListener(MouseEvent.CLICK, onHistogramClick);
+            }
+            trace("registred");
+            
             ExternalInterface.addCallback('pause', function():void {
                 if (playStarted) {
                     _pause();
@@ -201,7 +102,6 @@ package {
                     playMP3();
                 }
             });
-            
         }
                 
         private function get length():Number {
@@ -212,39 +112,18 @@ package {
             return soundFactory && 
                 soundFactory.bytesLoaded == soundFactory.bytesTotal;
         }
-        
-        private function createProgressLine():void {
-            progressLine = new CasaSprite();
-            progressLine.x = buttonWidth;
-            addChild(progressLine);
+
+        private function onSSWButtonClick(event:MouseEvent):void {
+            pause();
         }
         
-        private function createLoadingSprite():void {
-            loadingSprite = new CasaSprite();
-            loadingSprite.x = buttonWidth;
-            with (loadingSprite.graphics) {
-                beginFill(loadingIndicatorColor, .5);
-                drawRect(0, 0, playerWidth - buttonWidth, playerHeight);
-                endFill();
-            }
-            addChild(loadingSprite);
-        }
-        
-        private function drawPause():void {
-            _playMovie.visible = false;
-            _pauseMovie.visible = true;
-        }
-        
-        private function drawPlay():void {
-            _pauseMovie.visible = false;
-            _playMovie.visible = true;
-        }
-                
-        private function onMouseClick(event:MouseEvent):void {
-            if (event.stageX <= buttonWidth && event.stageY <= buttonHeight) {
-                pause();
-            } else if (!stopped && event.stageX <= playerWidth && event.stageY <= playerHeight) {
-                var requestedPos:Number = (event.stageX - buttonWidth) / (playerWidth - buttonWidth);
+        private function onHistogramClick(event:MouseEvent):void {    
+            trace("histogram local x:"+event.localX + " y:" +event.localY);
+            trace("histogram stage x:"+event.stageX + " y:" +event.stageY);
+            trace("histogram object w:" + playerGui.guiHistogram.x + " h:" + playerGui.guiHistogram.width);
+
+            if (!stopped) {
+                var requestedPos:Number = (event.stageX - playerGui.guiHistogram.x) / playerGui.guiHistogram.width;
                 if (soundFactory.bytesLoaded > soundFactory.bytesTotal * requestedPos) {
                     song.stop();
                     position = length * requestedPos;
@@ -253,16 +132,6 @@ package {
             }
         }
         
-        private function drawProgressLine(event:TimerEvent):void {
-            with (progressLine.graphics) {
-                clear();
-                beginFill(progressIndicatorColor, .5);
-                drawRect(0, 0, song.position *
-                    (playerWidth - buttonWidth) / length, playerHeight);
-                endFill();
-            }
-        }
-
         private function playMP3():void {
             if (playStarted) {
                 return;
@@ -275,18 +144,17 @@ package {
             var request:URLRequest = new URLRequest(soundFile);
             soundFactory = new Sound();
             soundFactory.load(request);
+            soundFactory.addEventListener(ProgressEvent.PROGRESS, onLoadProgress);
+
             song = soundFactory.play();
-            loadingUpdateTimer.start();
             song.addEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
-            drawPause();
-            progressUpdateTimer.start();
+            
+            playerGui.guiHistogram.drawLoadingProgress();
+            playerGui.guiButtons.setStatePause();
         }
                 
-        private function onLoadProgress(event:TimerEvent):void {
-            loadingSprite.x = buttonWidth + buttonWidth + soundFactory.bytesLoaded * loadingWidth / soundFactory.bytesTotal;
-            if (soundFactory.bytesLoaded == soundFactory.bytesTotal) {
-                loadingUpdateTimer.stop();
-            }
+        private function onLoadProgress(event:ProgressEvent):void {
+//            loadingSprite.x = soundFactory.bytesLoaded * loadingWidth / soundFactory.bytesTotal;
         }
                 
         private function soundCompleteHandler(event:Event):void {
@@ -310,8 +178,7 @@ package {
             paused = true;
             position = song.position;
             song.stop();
-            drawPlay();
-            progressUpdateTimer.stop();
+            playerGui.guiButtons.setStatePlay();
         }
         
         private function _play():void {
@@ -320,8 +187,7 @@ package {
             song = soundFactory.play(position);
             song.addEventListener(Event.SOUND_COMPLETE,
                                   soundCompleteHandler);
-            drawPause();
-            progressUpdateTimer.start();
+            playerGui.guiButtons.setStatePause();
         }
             
     }
