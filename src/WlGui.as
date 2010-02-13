@@ -1,18 +1,17 @@
 package {
     // Flash libs import
+    import flash.display.Sprite;
     import flash.display.StageAlign;
     import flash.display.StageScaleMode;
-    
+
     // Casa libs import
-    import org.casalib.display.CasaSprite;
-    import org.casalib.display.CasaMovieClip;
     import org.casalib.util.StageReference;
 
     // Our stuff import
     import Histogram;
     import SSWButton;
     
-    public class WlGui extends CasaMovieClip {
+    public class WlGui extends Sprite {
         public var guiButtons:SSWButton;
         public var guiHistogram:Histogram;
         
@@ -29,20 +28,17 @@ package {
                 endFill();
             }
             
-            guiButtons = new SSWButton();
+            width = guiWidth;
+            height = guiHeight;
+            
+            guiButtons = new SSWButton(guiHeight-16, guiHeight-16);
             guiButtons.x = 8;
             guiButtons.y = 8;
-            guiButtons.width = guiHeight - 16;
-            guiButtons.height = guiHeight - 16;
-            
             addChild(guiButtons);
 
-            guiHistogram = new Histogram();
+            guiHistogram = new Histogram(guiWidth - guiHeight, guiHeight);
             guiHistogram.x = guiHeight;
             guiHistogram.y = 0;
-            guiHistogram.width = guiWidth - guiHeight;
-            guiHistogram.height = guiHeight;
-
             addChild(guiHistogram);
         }
     }

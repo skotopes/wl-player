@@ -16,13 +16,13 @@ package {
         [Embed(source='../assets/wip.svg')]
         private var wipSvg:Class;
         
-        public function SSWButton() {
+        public function SSWButton(sswWidth:Number, sswHeight:Number) {
             _clickMovie = new clickSvg();
             _pauseMovie = new pauseSvg();
             _playMovie = new playSvg();
             _wipMovie = new wipSvg();
 
-            _clickMovie.visible = false
+            _clickMovie.visible = false;
             _pauseMovie.visible = false;
             _playMovie.visible = false;
             _wipMovie.visible = true;
@@ -31,6 +31,9 @@ package {
             addChild(_pauseMovie);
             addChild(_playMovie);
             addChild(_wipMovie);
+            
+            width = sswWidth;
+            height = sswHeight;
             
             buttonMode = true;
             hitArea = this;

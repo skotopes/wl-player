@@ -87,7 +87,6 @@ package {
             with (playerGui.guiHistogram) {
                 addEventListener(MouseEvent.CLICK, onHistogramClick);
             }
-            trace("registred");
             
             ExternalInterface.addCallback('pause', function():void {
                 if (playStarted) {
@@ -101,7 +100,7 @@ package {
                 } else {
                     playMP3();
                 }
-            });
+            });            
         }
                 
         private function get length():Number {
@@ -118,12 +117,8 @@ package {
         }
         
         private function onHistogramClick(event:MouseEvent):void {    
-            trace("histogram local x:"+event.localX + " y:" +event.localY);
-            trace("histogram stage x:"+event.stageX + " y:" +event.stageY);
-            trace("histogram object w:" + playerGui.guiHistogram.x + " h:" + playerGui.guiHistogram.width);
-
             if (!stopped) {
-                var requestedPos:Number = (event.stageX - playerGui.guiHistogram.x) / playerGui.guiHistogram.width;
+                var requestedPos:Number = (event.stageX - playerHeight) / (playerWidth - playerHeight);
                 if (soundFactory.bytesLoaded > soundFactory.bytesTotal * requestedPos) {
                     song.stop();
                     position = length * requestedPos;
@@ -145,17 +140,29 @@ package {
             soundFactory = new Sound();
             soundFactory.load(request);
             soundFactory.addEventListener(ProgressEvent.PROGRESS, onLoadProgress);
-
+            soundFactory.addEventListener(Event.COMPLETE, onCompleatProgress);
+            
             song = soundFactory.play();
             song.addEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
             
-            playerGui.guiHistogram.drawLoadingProgress();
+            progressUpdateTimer = new Timer(400);
+            progressUpdateTimer.addEventListener(TimerEvent.TIMER, updatePosition);
+            progressUpdateTimer.start();
+
             playerGui.guiButtons.setStatePause();
         }
                 
         private function onLoadProgress(event:ProgressEvent):void {
-//            loadingSprite.x = soundFactory.bytesLoaded * loadingWidth / soundFactory.bytesTotal;
+            playerGui.guiHistogram.setProgress(event.bytesLoaded / event.bytesTotal);
         }
+        
+        private function onCompleatProgress(event:Event):void {
+            playerGui.guiHistogram.setProgress(1);
+        }
+        
+        private function updatePosition(event:TimerEvent):void {
+            playerGui.guiHistogram.setPosition(song.position / length);
+        }        
                 
         private function soundCompleteHandler(event:Event):void {
             position = 0;
@@ -188,6 +195,7 @@ package {
             song.addEventListener(Event.SOUND_COMPLETE,
                                   soundCompleteHandler);
             playerGui.guiButtons.setStatePause();
+            playerGui.guiHistogram.setPosition(song.position / length);
         }
             
     }
