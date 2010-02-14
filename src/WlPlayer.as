@@ -1,7 +1,6 @@
 package {
     import flash.events.*;
     import flash.net.URLRequest;
-    import flash.utils.Timer;
     import flash.media.Sound;
     import flash.media.SoundChannel;
     import flash.display.Bitmap;
@@ -28,7 +27,6 @@ package {
         // Internal primitives
         private var song:SoundChannel;
         private var soundFactory:Sound;
-        private var progressUpdateTimer:Timer;
         
         private var position:Number;
         private var paused:Boolean = false;
@@ -148,14 +146,16 @@ package {
         }
         
         private function onCompleatProgress(event:Event):void {
+            soundFactory.removeEventListener(ProgressEvent.PROGRESS, onLoadProgress);
             playerGui.guiHistogram.loadProgress = 1;
         }
         
-        private function updatePosition(event:TimerEvent):void {
+        private function updatePosition(event:Event):void {
             playerGui.guiHistogram.playPosition = song.position / length;
         }        
         
         private function soundCompleteHandler(event:Event):void {
+            soundFactory.removeEventListener(Event.ENTER_FRAME, updatePosition);
             position = 0;
         }
         
@@ -194,10 +194,8 @@ package {
             song = soundFactory.play();
             song.addEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
             
-            progressUpdateTimer = new Timer(400);
-            progressUpdateTimer.addEventListener(TimerEvent.TIMER, updatePosition);
-            progressUpdateTimer.start();
-            
+            soundFactory.addEventListener(Event.ENTER_FRAME, updatePosition);
+                        
             playerGui.guiButtons.state = 'pause'; // setStatePause();
         }
         

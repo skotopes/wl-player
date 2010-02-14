@@ -88,7 +88,7 @@ package {
         }
         
         public function set playPosition(pos:Number):void {
-            positionSprite.x = loadingSprite.width * pos;
+        positionSprite.x = loadingSprite.width * pos;
         }
         
         public function set loadProgress(pos:Number):void {
