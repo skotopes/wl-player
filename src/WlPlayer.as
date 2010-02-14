@@ -41,12 +41,16 @@ package {
         private var stopped:Boolean = true;
         private var position:Number;
         private var soundFactory:Sound;
-        private var imageLoader:Loader;
         private var progressUpdateTimer:Timer;
         private var loadingProgress:Number;
         private var loadingUpdateTimer:Timer;
         
         private var playerGui:WlGui;
+        
+        /**
+         * Class contructor
+         *
+         */ 
         
         public function WlPlayer() {
             
@@ -79,6 +83,18 @@ package {
             playerGui = new WlGui(playerWidth, playerHeight);
 
             addChild(playerGui);
+
+            var backUrlReq:URLRequest = new URLRequest(backFile);
+            var maskUrlReq:URLRequest = new URLRequest(maskFile);            
+
+            var histBackLoad:Loader = new Loader();
+            var histMaskLoad:Loader = new Loader();
+
+            histBackLoad.addEventListener(Event.COMPLETE, histBackLoaded);
+            histMaskLoad.addEventListener(Event.COMPLETE, histMaskLoaded);
+            
+            histBackLoad.load(backUrlReq);
+            histMaskLoad.load(maskUrlReq);
             
             with (playerGui.guiButtons) {
                 addEventListener(MouseEvent.CLICK, onSSWButtonClick);
@@ -103,15 +119,20 @@ package {
             });            
         }
                 
+        /**
+         * Abstract shit
+         * so lonely here, probably it has sense to remove it at all? 
+         */ 
+        
         private function get length():Number {
             return soundFactory.length * soundFactory.bytesTotal / soundFactory.bytesLoaded;
         }
         
-        private function get loaded():Boolean {
-            return soundFactory && 
-                soundFactory.bytesLoaded == soundFactory.bytesTotal;
-        }
-
+        /**
+         * On click handlers
+         *
+         */ 
+        
         private function onSSWButtonClick(event:MouseEvent):void {
             pause();
         }
@@ -126,6 +147,41 @@ package {
                 }
             }
         }
+
+        /**
+         * Other Events handlers 
+         *
+         */ 
+        
+        private function onLoadProgress(event:ProgressEvent):void {
+            playerGui.guiHistogram.setProgress(event.bytesLoaded / event.bytesTotal);
+        }
+        
+        private function onCompleatProgress(event:Event):void {
+            playerGui.guiHistogram.setProgress(1);
+        }
+        
+        private function updatePosition(event:TimerEvent):void {
+            playerGui.guiHistogram.setPosition(song.position / length);
+        }        
+        
+        private function soundCompleteHandler(event:Event):void {
+            position = 0;
+        }
+
+        private function histBackLoaded(event:Event):void {
+            //event.target;
+            trace("back is loaded");
+        }
+
+        private function histMaskLoaded(event:Event):void {
+            trace("mask is loaded");
+        }
+        
+        /**
+         * Abstract shit
+         *
+         */ 
         
         private function playMP3():void {
             if (playStarted) {
@@ -150,22 +206,6 @@ package {
             progressUpdateTimer.start();
 
             playerGui.guiButtons.setStatePause();
-        }
-                
-        private function onLoadProgress(event:ProgressEvent):void {
-            playerGui.guiHistogram.setProgress(event.bytesLoaded / event.bytesTotal);
-        }
-        
-        private function onCompleatProgress(event:Event):void {
-            playerGui.guiHistogram.setProgress(1);
-        }
-        
-        private function updatePosition(event:TimerEvent):void {
-            playerGui.guiHistogram.setPosition(song.position / length);
-        }        
-                
-        private function soundCompleteHandler(event:Event):void {
-            position = 0;
         }
         
         private function pause():void {
