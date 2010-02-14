@@ -6,7 +6,7 @@ package {
     public class SSWButton extends Sprite {
         
         protected var states:Array = ['click', 'pause', 'play', 'wip'];
-        protected var movies:Dictionary;
+        protected var movies:Dictionary = new Dictionary();
         
         [Embed(source='../assets/click.svg')]
         protected var clickSvg:Class;
@@ -46,7 +46,7 @@ package {
                 throw new Error('unknown state "' + value + '"');
             }
             for(var i:Number=0; i<states.length; i++) {
-                movies[states[i]] = (states[i] == value);
+                movies[states[i]].visible = (states[i] == value);
             }
         }
 

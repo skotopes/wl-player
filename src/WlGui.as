@@ -34,6 +34,7 @@ package {
             guiButtons = new SSWButton(guiHeight-16, guiHeight-16);
             guiButtons.x = 8;
             guiButtons.y = 8;
+            guiButtons.state = 'play';
             addChild(guiButtons);
 
             guiHistogram = new Histogram(guiWidth - guiHeight, guiHeight);
