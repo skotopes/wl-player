@@ -149,7 +149,7 @@ package {
             progressUpdateTimer.addEventListener(TimerEvent.TIMER, updatePosition);
             progressUpdateTimer.start();
 
-            playerGui.guiButtons.setStatePause();
+            playerGui.guiButtons.state = 'pause'; // setStatePause();
         }
                 
         private function onLoadProgress(event:ProgressEvent):void {
@@ -185,7 +185,7 @@ package {
             paused = true;
             position = song.position;
             song.stop();
-            playerGui.guiButtons.setStatePlay();
+            playerGui.guiButtons.state = 'play'; // setStatePlay();
         }
         
         private function _play():void {
@@ -194,7 +194,7 @@ package {
             song = soundFactory.play(position);
             song.addEventListener(Event.SOUND_COMPLETE,
                                   soundCompleteHandler);
-            playerGui.guiButtons.setStatePause();
+            playerGui.guiButtons.state = 'pause'; // setStatePause();
             playerGui.guiHistogram.setPosition(song.position / length);
         }
             

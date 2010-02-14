@@ -1,60 +1,54 @@
 package {
+    
+    import flash.utils.Dictionary;
     import flash.display.Sprite;
 
     public class SSWButton extends Sprite {
-        private var _clickMovie:Sprite;
-        private var _pauseMovie:Sprite;
-        private var _playMovie:Sprite;
-        private var _wipMovie:Sprite;
-
-        [Embed(source='../assets/click.svg')]
-        private var clickSvg:Class;
-        [Embed(source='../assets/pause.svg')]
-        private var pauseSvg:Class;
-        [Embed(source='../assets/play.svg')]
-        private var playSvg:Class;
-        [Embed(source='../assets/wip.svg')]
-        private var wipSvg:Class;
         
-        public function SSWButton(sswWidth:Number, sswHeight:Number) {
-            _clickMovie = new clickSvg();
-            _pauseMovie = new pauseSvg();
-            _playMovie = new playSvg();
-            _wipMovie = new wipSvg();
-
-            _clickMovie.visible = false;
-            _pauseMovie.visible = false;
-            _playMovie.visible = false;
-            _wipMovie.visible = true;
-
-            addChild(_clickMovie);
-            addChild(_pauseMovie);
-            addChild(_playMovie);
-            addChild(_wipMovie);
+        protected var states:Array = ['click', 'pause', 'play', 'wip'];
+        protected var movies:Dictionary;
+        
+        [Embed(source='../assets/click.svg')]
+        protected var clickSvg:Class;
+        
+        [Embed(source='../assets/pause.svg')]
+        protected var pauseSvg:Class;
+        
+        [Embed(source='../assets/play.svg')]
+        protected var playSvg:Class;
+        
+        [Embed(source='../assets/wip.svg')]
+        protected var wipSvg:Class;
+        
+        public function SSWButton(_width:Number, _height:Number) {
             
-            width = sswWidth;
-            height = sswHeight;
+            var sp:Sprite;
+            var name:String;
+            var spClass:Class;
+            for(var i:Number=0; i<states.length; i++) {
+                name = states[i];
+                spClass = this[name + 'Svg'];
+                sp = new spClass();
+                movies[name] = sp;
+                sp.visible = false;
+                addChild(sp);
+            }
+            
+            width = _width;
+            height = _height;
             
             buttonMode = true;
             hitArea = this;
         }
         
-        public function setStatePause():void {
-            _pauseMovie.visible = true;
-            _playMovie.visible = false;
-            _wipMovie.visible = false;
+        public function set state(value:String):void {
+            if (states.indexOf(value) == -1) {
+                throw new Error('unknown state "' + value + '"');
+            }
+            for(var i:Number=0; i<states.length; i++) {
+                movies[states[i]] = (states[i] == value);
+            }
         }
-        
-        public function setStatePlay():void {
-            _pauseMovie.visible = false;
-            _playMovie.visible = true;
-            _wipMovie.visible = false;
-        }
-        
-        public function setStateWIP():void {
-            _pauseMovie.visible = false;
-            _playMovie.visible = false;
-            _wipMovie.visible = true;
-        }
+
     }
 }
