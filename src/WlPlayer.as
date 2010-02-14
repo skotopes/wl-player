@@ -11,25 +11,25 @@ package {
     import flash.display.StageAlign;
     import flash.display.StageScaleMode;
     import flash.external.ExternalInterface;
-
+    
     import WlGui;
-
+    
     public class WlPlayer extends MovieClip {
-
+        
         // External parameters set
         private var playerWidth:Number = 600;
         private var playerHeight:Number = 80;
-
+        
         private var soundFile:String;
         private var maskFile:String;
         private var backFile:String;
         private var playerID:String;        
-
+        
         // Internal primitives
         private var song:SoundChannel;
         private var soundFactory:Sound;
         private var progressUpdateTimer:Timer;
-
+        
         private var position:Number;
         private var paused:Boolean = false;
         private var stopped:Boolean = true;
@@ -48,28 +48,28 @@ package {
                 align = StageAlign.TOP_LEFT;
                 scaleMode = StageScaleMode.NO_SCALE;
             }
-
+            
             var requiredVars:Array = ['soundFile', 'playerID'];
             
             requiredVars.map(function(name:String, index:Number, all:Array):void {
-                if (! stage.loaderInfo.parameters[name] ? true : false) {
-                    throw new Error('param ' + name + ' is required'); 
-                }
-                this[name] = stage.loaderInfo.parameters[name];
-            }, this);
+                             if (! stage.loaderInfo.parameters[name] ? true : false) {
+                             throw new Error('param ' + name + ' is required'); 
+                             }
+                             this[name] = stage.loaderInfo.parameters[name];
+                             }, this);
             
             var optionalVars:Array = ['playerWidth', 'playerHeight',
                                       'maskFile', 'backFile'];
             
             optionalVars.map(function(name:String, index:Number, all:Array):void {
-                if (stage.loaderInfo.parameters[name] ? true : false) {
-                    this[name] = stage.loaderInfo.parameters[name];
-                }
-            }, this);
+                             if (stage.loaderInfo.parameters[name] ? true : false) {
+                             this[name] = stage.loaderInfo.parameters[name];
+                             }
+                             }, this);
             
             playerGui = new WlGui(playerWidth, playerHeight);
             addChild(playerGui);
-
+            
             if (backFile) { // Load histogram back if avaliable
                 var backUrlReq:URLRequest = new URLRequest(backFile);
                 var histBackLoad:Loader = new Loader();
@@ -89,26 +89,26 @@ package {
             with (playerGui.guiButtons) {
                 addEventListener(MouseEvent.CLICK, onSSWButtonClick);
             }
-
+            
             with (playerGui.guiHistogram) {
                 addEventListener(MouseEvent.CLICK, onHistogramClick);
             }
             
             ExternalInterface.addCallback('pause', function():void {
-                if (playStarted) {
-                    _pause();
-                }
-            });
+                                          if (playStarted) {
+                                          _pause();
+                                          }
+                                          });
             
             ExternalInterface.addCallback('play', function():void {
-                if (!stopped) {
-                    _play();
-                } else {
-                    playMP3();
-                }
-            });
+                                          if (!stopped) {
+                                          _play();
+                                          } else {
+                                          playMP3();
+                                          }
+                                          });
         }
-                
+        
         /**
          * Abstract shit
          * so lonely here, probably it has sense to remove it at all? 
@@ -137,7 +137,7 @@ package {
                 }
             }
         }
-
+        
         /**
          * Other Events handlers 
          *
@@ -158,13 +158,13 @@ package {
         private function soundCompleteHandler(event:Event):void {
             position = 0;
         }
-
+        
         private function histBackLoaded(event:Event):void {
             var loaderInfo:LoaderInfo = event.currentTarget as LoaderInfo;
             playerGui.guiHistogram.histBack = loaderInfo.content as Bitmap;
             trace("back is loaded");
         }
-
+        
         private function histMaskLoaded(event:Event):void {
             var loaderInfo:LoaderInfo = event.currentTarget as LoaderInfo;
             playerGui.guiHistogram.histMask = loaderInfo.content as Bitmap;
@@ -197,7 +197,7 @@ package {
             progressUpdateTimer = new Timer(400);
             progressUpdateTimer.addEventListener(TimerEvent.TIMER, updatePosition);
             progressUpdateTimer.start();
-
+            
             playerGui.guiButtons.state = 'pause'; // setStatePause();
         }
         

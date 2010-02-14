@@ -13,9 +13,7 @@ package {
         public function WlGui(guiWidth:Number, guiHeight:Number)
         {            
             with (graphics) {
-                beginFill(0xFFFFFF);
                 drawRect(0, 0, guiWidth, guiHeight);
-                endFill();
             }
             
             width = guiWidth;
