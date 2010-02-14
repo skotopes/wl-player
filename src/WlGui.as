@@ -1,11 +1,6 @@
 package {
     // Flash libs import
     import flash.display.Sprite;
-    import flash.display.StageAlign;
-    import flash.display.StageScaleMode;
-
-    // Casa libs import
-    import org.casalib.util.StageReference;
 
     // Our stuff import
     import Histogram;
@@ -16,12 +11,7 @@ package {
         public var guiHistogram:Histogram;
         
         public function WlGui(guiWidth:Number, guiHeight:Number)
-        {
-            with (StageReference.getStage()) {
-                align = StageAlign.TOP_LEFT;
-                scaleMode = StageScaleMode.NO_SCALE;
-            }
-            
+        {            
             with (graphics) {
                 beginFill(0xFFFFFF);
                 drawRect(0, 0, guiWidth, guiHeight);

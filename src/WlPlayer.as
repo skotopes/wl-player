@@ -1,51 +1,41 @@
-package {    
-    import flash.external.ExternalInterface;
+package {
     import flash.events.*;
-    import flash.media.Sound;
-    import flash.media.SoundChannel;
     import flash.net.URLRequest;
     import flash.utils.Timer;
+    import flash.media.Sound;
+    import flash.media.SoundChannel;
     import flash.display.Bitmap;
     import flash.display.Loader;
-    import flash.display.LoaderInfo
+    import flash.display.LoaderInfo;
     import flash.display.MovieClip;
-    import flash.display.Sprite;
-    
-    import org.casalib.display.CasaSprite;
-    import org.casalib.display.CasaMovieClip;
-    import org.casalib.load.ImageLoad;
-    import org.casalib.load.CasaLoader;
-    import org.casalib.events.LoadEvent;    
-    import org.casalib.util.FlashVarUtil;
-    import org.casalib.util.StageReference;
+    import flash.display.StageAlign;
+    import flash.display.StageScaleMode;
+    import flash.external.ExternalInterface;
 
     import WlGui;
 
-    public class WlPlayer extends CasaMovieClip {
-        
+    public class WlPlayer extends MovieClip {
+
+        // External parameters set
+        private var playerWidth:Number = 600;
+        private var playerHeight:Number = 80;
+
         private var soundFile:String;
         private var maskFile:String;
         private var backFile:String;
-        private var playerID:String;
+        private var playerID:String;        
 
-        private var playerWidth:Number = 600;
-        private var playerHeight:Number = 80;
-        private var playerBackgroundColor:Number = 0xFFFFFF;
-        
-        private var buttonWidth:Number = 80;
-        private var buttonHeight:Number = 80;
-
-        private var playStarted:Boolean = false;
+        // Internal primitives
         private var song:SoundChannel;
-        private var request:URLRequest;
-        private var paused:Boolean = false;
-        private var stopped:Boolean = true;
-        private var position:Number;
         private var soundFactory:Sound;
         private var progressUpdateTimer:Timer;
-        private var loadingProgress:Number;
-        private var loadingUpdateTimer:Timer;
+
+        private var position:Number;
+        private var paused:Boolean = false;
+        private var stopped:Boolean = true;
+        private var playStarted:Boolean = false;
         
+        // Gui matroska 
         private var playerGui:WlGui;
         
         /**
@@ -54,48 +44,47 @@ package {
          */ 
         
         public function WlPlayer() {
-            StageReference.setStage(stage);
+            with (stage) {
+                align = StageAlign.TOP_LEFT;
+                scaleMode = StageScaleMode.NO_SCALE;
+            }
 
-            var requiredVars:Array = ['soundFile', 'maskFile',
-                                      'backFile', 'playerID'];
+            var requiredVars:Array = ['soundFile', 'playerID'];
             
             requiredVars.map(function(name:String, index:Number, all:Array):void {
-                if (! FlashVarUtil.hasKey(name)) {
+                if (! stage.loaderInfo.parameters[name] ? true : false) {
                     throw new Error('param ' + name + ' is required'); 
                 }
-                this[name] = FlashVarUtil.getValue(name);
+                this[name] = stage.loaderInfo.parameters[name];
             }, this);
             
             var optionalVars:Array = ['playerWidth', 'playerHeight',
-                                      'buttonWidth', 'buttonHeight',
-                                      'playerBackgroundColor',
-                                      'loadingIndicatorColor',
-                                      'loadingIndicatorUpdateInterval',
-                                      'progressIndicatorColor',
-                                      'progressIndicatorUpdateInterval'];
+                                      'maskFile', 'backFile'];
             
             optionalVars.map(function(name:String, index:Number, all:Array):void {
-                if (FlashVarUtil.hasKey(name)) {
-                    this[name] = Number(FlashVarUtil.getValue(name));
+                if (stage.loaderInfo.parameters[name] ? true : false) {
+                    this[name] = stage.loaderInfo.parameters[name];
                 }
             }, this);
             
             playerGui = new WlGui(playerWidth, playerHeight);
             addChild(playerGui);
 
-            /**
-             * Load mask and spectrogram
-             */
-            var backUrlReq:URLRequest = new URLRequest(backFile);
-            var maskUrlReq:URLRequest = new URLRequest(maskFile);            
-            var histBackLoad:Loader = new Loader();
-            var histMaskLoad:Loader = new Loader();
-            histBackLoad.contentLoaderInfo.addEventListener(Event.COMPLETE,
-                                                            histBackLoaded);
-            histMaskLoad.contentLoaderInfo.addEventListener(Event.COMPLETE,
-                                                            histMaskLoaded);
-            histBackLoad.load(backUrlReq);
-            histMaskLoad.load(maskUrlReq);
+            if (backFile) { // Load histogram back if avaliable
+                var backUrlReq:URLRequest = new URLRequest(backFile);
+                var histBackLoad:Loader = new Loader();
+                histBackLoad.contentLoaderInfo.addEventListener(Event.COMPLETE,
+                                                                histBackLoaded);
+                histBackLoad.load(backUrlReq);
+            }
+            
+            if (maskFile) { // Load histogram mask if avaliable
+                var maskUrlReq:URLRequest = new URLRequest(maskFile);
+                var histMaskLoad:Loader = new Loader();
+                histMaskLoad.contentLoaderInfo.addEventListener(Event.COMPLETE,
+                                                                histMaskLoaded);
+                histMaskLoad.load(maskUrlReq);
+            }
             
             with (playerGui.guiButtons) {
                 addEventListener(MouseEvent.CLICK, onSSWButtonClick);
@@ -117,7 +106,7 @@ package {
                 } else {
                     playMP3();
                 }
-            });            
+            });
         }
                 
         /**
@@ -155,15 +144,15 @@ package {
          */ 
         
         private function onLoadProgress(event:ProgressEvent):void {
-            playerGui.guiHistogram.setProgress(event.bytesLoaded / event.bytesTotal);
+            playerGui.guiHistogram.loadProgress = event.bytesLoaded / event.bytesTotal;
         }
         
         private function onCompleatProgress(event:Event):void {
-            playerGui.guiHistogram.setProgress(1);
+            playerGui.guiHistogram.loadProgress = 1;
         }
         
         private function updatePosition(event:TimerEvent):void {
-            playerGui.guiHistogram.setPosition(song.position / length);
+            playerGui.guiHistogram.playPosition = song.position / length;
         }        
         
         private function soundCompleteHandler(event:Event):void {
@@ -239,8 +228,7 @@ package {
             song.addEventListener(Event.SOUND_COMPLETE,
                                   soundCompleteHandler);
             playerGui.guiButtons.state = 'pause'; // setStatePause();
-            playerGui.guiHistogram.setPosition(song.position / length);
+            playerGui.guiHistogram.playPosition = song.position / length;
         }
-            
     }
 }

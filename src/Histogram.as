@@ -46,8 +46,7 @@ package {
                 drawRect(0, 0, 1, histHeight);
                 endFill();
             }
-            positionSprite.alpha = 0.75;
-
+            
             // Fucking magick
             histogramSprite.width = histWidth;
             histogramSprite.height = histHeight;
@@ -88,11 +87,11 @@ package {
             histogramSprite.addChildAt(image, 1);
         }
         
-        public function setPosition(pos:Number):void {
+        public function set playPosition(pos:Number):void {
             positionSprite.x = loadingSprite.width * pos;
         }
         
-        public function setProgress(pos:Number):void {
+        public function set loadProgress(pos:Number):void {
             loadingSprite.x = loadingSprite.width * pos;
         }
     }
