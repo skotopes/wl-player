@@ -5,8 +5,9 @@ package {
     import flash.media.SoundChannel;
     import flash.net.URLRequest;
     import flash.utils.Timer;
-    import flash.display.BitmapData;
+    import flash.display.Bitmap;
     import flash.display.Loader;
+    import flash.display.LoaderInfo
     import flash.display.MovieClip;
     import flash.display.Sprite;
     
@@ -53,7 +54,6 @@ package {
          */ 
         
         public function WlPlayer() {
-            
             StageReference.setStage(stage);
 
             var requiredVars:Array = ['soundFile', 'maskFile',
@@ -81,18 +81,19 @@ package {
             }, this);
             
             playerGui = new WlGui(playerWidth, playerHeight);
-
             addChild(playerGui);
 
+            /**
+             * Load mask and spectrogram
+             */
             var backUrlReq:URLRequest = new URLRequest(backFile);
             var maskUrlReq:URLRequest = new URLRequest(maskFile);            
-
             var histBackLoad:Loader = new Loader();
             var histMaskLoad:Loader = new Loader();
-
-            histBackLoad.addEventListener(Event.COMPLETE, histBackLoaded);
-            histMaskLoad.addEventListener(Event.COMPLETE, histMaskLoaded);
-            
+            histBackLoad.contentLoaderInfo.addEventListener(Event.COMPLETE,
+                                                            histBackLoaded);
+            histMaskLoad.contentLoaderInfo.addEventListener(Event.COMPLETE,
+                                                            histMaskLoaded);
             histBackLoad.load(backUrlReq);
             histMaskLoad.load(maskUrlReq);
             
@@ -170,11 +171,14 @@ package {
         }
 
         private function histBackLoaded(event:Event):void {
-            //event.target;
+            var loaderInfo:LoaderInfo = event.currentTarget as LoaderInfo;
+            playerGui.guiHistogram.histBack = loaderInfo.content as Bitmap;
             trace("back is loaded");
         }
 
         private function histMaskLoaded(event:Event):void {
+            var loaderInfo:LoaderInfo = event.currentTarget as LoaderInfo;
+            playerGui.guiHistogram.histMask = loaderInfo.content as Bitmap;
             trace("mask is loaded");
         }
         
