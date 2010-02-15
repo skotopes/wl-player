@@ -44,9 +44,11 @@ package {
         public function WlPlayer() {
             with (stage) {
                 align = StageAlign.TOP_LEFT;
-                scaleMode = StageScaleMode.NO_SCALE;
+                scaleMode = StageScaleMode.NO_SCALE;                
             }
             
+            stage.focus = stage;
+
             var requiredVars:Array = ['soundFile', 'playerID'];
             
             requiredVars.map(function(name:String, index:Number, all:Array):void {
@@ -67,7 +69,7 @@ package {
             
             playerGui = new WlGui(playerWidth, playerHeight);
             addChild(playerGui);
-            
+                        
             if (backFile) { // Load histogram back if avaliable
                 var backUrlReq:URLRequest = new URLRequest(backFile);
                 var histBackLoad:Loader = new Loader();
@@ -155,7 +157,8 @@ package {
         }        
         
         private function soundCompleteHandler(event:Event):void {
-            soundFactory.removeEventListener(Event.ENTER_FRAME, updatePosition);
+            removeEventListener(Event.ENTER_FRAME, updatePosition);
+            song.removeEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
             position = 0;
         }
         
@@ -194,7 +197,7 @@ package {
             song = soundFactory.play();
             song.addEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
             
-            soundFactory.addEventListener(Event.ENTER_FRAME, updatePosition);
+            addEventListener(Event.ENTER_FRAME, updatePosition);
                         
             playerGui.guiButtons.state = 'pause'; // setStatePause();
         }
@@ -223,8 +226,9 @@ package {
             ExternalInterface.call('AudioPlayer.onPlay', playerID);
             paused = false;
             song = soundFactory.play(position);
-            song.addEventListener(Event.SOUND_COMPLETE,
-                                  soundCompleteHandler);
+            song.addEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
+            addEventListener(Event.ENTER_FRAME, updatePosition);
+
             playerGui.guiButtons.state = 'pause'; // setStatePause();
             playerGui.guiHistogram.playPosition = song.position / length;
         }
