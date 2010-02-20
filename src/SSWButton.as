@@ -5,8 +5,8 @@ package {
 
     public class SSWButton extends Sprite {
         
-        protected var states:Array = ['click', 'pause', 'play', 'wip'];
-        protected var movies:Dictionary = new Dictionary();
+        protected var states:Array = ['pause', 'play', 'wip', 'click'];
+        protected var sprites:Dictionary = new Dictionary();
         
         [Embed(source='../assets/click.svg')]
         protected var clickSvg:Class;
@@ -25,20 +25,23 @@ package {
             var sp:Sprite;
             var name:String;
             var spClass:Class;
+
             for(var i:Number=0; i<states.length; i++) {
                 name = states[i];
                 spClass = this[name + 'Svg'];
                 sp = new spClass();
-                movies[name] = sp;
                 sp.visible = false;
+                sp.cacheAsBitmap = true;
+                sp.mouseEnabled = false;
+                sprites[name] = sp;                
                 addChild(sp);
             }
             
             width = _width;
             height = _height;
-            
+                        
             buttonMode = true;
-            hitArea = this;
+            hitArea = sprites['click'];
         }
         
         public function set state(value:String):void {
@@ -46,7 +49,7 @@ package {
                 throw new Error('unknown state "' + value + '"');
             }
             for(var i:Number=0; i<states.length; i++) {
-                movies[states[i]].visible = (states[i] == value);
+                sprites[states[i]].visible = (states[i] == value);
             }
         }
 

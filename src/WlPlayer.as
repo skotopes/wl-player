@@ -9,7 +9,7 @@ package {
     import flash.display.MovieClip;
     import flash.display.StageAlign;
     import flash.display.StageScaleMode;
-    import flash.external.ExternalInterface;
+//    import flash.external.ExternalInterface;
     
     import WlGui;
     
@@ -94,19 +94,19 @@ package {
                 addEventListener(MouseEvent.CLICK, onHistogramClick);
             }
             
-            ExternalInterface.addCallback('pause', function():void {
-                                          if (playStarted) {
-                                          _pause();
-                                          }
-                                          });
+//            ExternalInterface.addCallback('pause', function():void {
+//                                          if (playStarted) {
+//                                          _pause();
+//                                          }
+//                                          });
             
-            ExternalInterface.addCallback('play', function():void {
-                                          if (!stopped) {
-                                          _play();
-                                          } else {
-                                          playMP3();
-                                          }
-                                          });
+//            ExternalInterface.addCallback('play', function():void {
+//                                          if (!stopped) {
+//                                          _play();
+//                                          } else {
+//                                          playMP3();
+//                                          }
+//                                          });
         }
         
         /**
@@ -183,7 +183,7 @@ package {
             if (playStarted) {
                 return;
             }
-            ExternalInterface.call('AudioPlayer.onPlay', playerID);
+//            ExternalInterface.call('AudioPlayer.onPlay', playerID);
             playStarted = true;
             stopped = false;
             paused = false;
@@ -215,7 +215,7 @@ package {
         }
         
         private function _pause():void {
-            ExternalInterface.call('AudioPlayer.onPause', playerID);
+//            ExternalInterface.call('AudioPlayer.onPause', playerID);
             paused = true;
             position = song.position;
             song.stop();
@@ -223,7 +223,7 @@ package {
         }
         
         private function _play():void {
-            ExternalInterface.call('AudioPlayer.onPlay', playerID);
+//            ExternalInterface.call('AudioPlayer.onPlay', playerID);
             paused = false;
             song = soundFactory.play(position);
             song.addEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);

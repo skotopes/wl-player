@@ -6,6 +6,9 @@ package {
 
     public class Histogram extends Sprite {
 
+        private var layers:Array = ['pause', 'play', 'wip', 'click'];
+        private var sprites:Dictionary = new Dictionary();
+
         private var positionIndicatorColor:Number = 0xFF0000;
         private var loadingIndicatorColor:Number = 0x336666;
 
@@ -88,7 +91,7 @@ package {
         }
         
         public function set playPosition(pos:Number):void {
-        positionSprite.x = loadingSprite.width * pos;
+            positionSprite.x = loadingSprite.width * pos;
         }
         
         public function set loadProgress(pos:Number):void {
