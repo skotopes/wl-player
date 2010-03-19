@@ -1,4 +1,4 @@
-package {
+package widgets {
     
     import flash.utils.Dictionary;
     import flash.display.Sprite;
@@ -8,16 +8,16 @@ package {
         protected var states:Array = ['pause', 'play', 'wip', 'click'];
         protected var sprites:Dictionary = new Dictionary();
         
-        [Embed(source='../assets/click.svg')]
+        [Embed(source='SSWButton_assets/click.svg')]
         protected var clickSvg:Class;
         
-        [Embed(source='../assets/pause.svg')]
+        [Embed(source='SSWButton_assets/pause.svg')]
         protected var pauseSvg:Class;
         
-        [Embed(source='../assets/play.svg')]
+        [Embed(source='SSWButton_assets/play.svg')]
         protected var playSvg:Class;
         
-        [Embed(source='../assets/wip.svg')]
+        [Embed(source='SSWButton_assets/wip.svg')]
         protected var wipSvg:Class;
         
         public function SSWButton(_width:Number, _height:Number) {
@@ -33,6 +33,7 @@ package {
                 sp.visible = false;
                 sp.cacheAsBitmap = true;
                 sp.mouseEnabled = false;
+
                 sprites[name] = sp;                
                 addChild(sp);
             }

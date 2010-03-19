@@ -1,14 +1,13 @@
+MCFLAGS = -static-link-runtime-shared-libraries -compiler.optimize -compiler.strict -target-player 9.0.124
+MCMETA = -metadata.creator skotopes -metadata.title WlPlayer -metadata.publisher skotopes
+SOURCE = src/WlPlayer.as
+OUTPUT = -output bin/wlplayer.swf
+
 wlplayer:
-	mxmlc -static-link-runtime-shared-libraries -compiler.optimize\
-	      -compiler.strict -metadata.creator barbuza\
-              -metadata.title wlplayer\
-	      -target-player 9.0.124 -output bin/wlplayer.swf src/WlPlayer.as 2>&1 | iconv -f "MacCyrillic" -t utf8
+	mxmlc $(MCFLAGS) $(MCMETA) $(OUTPUT) $(SOURCE) 2>&1 | iconv -f "MacCyrillic" -t utf8
 
 debug:
-	mxmlc -debug=true -static-link-runtime-shared-libraries -compiler.optimize\
-	      -compiler.strict -metadata.creator barbuza\
-              -metadata.title wlplayer\
-	      -target-player 9.0.124 -output bin/wlplayer.swf src/WlPlayer.as 2>&1 | iconv -f "MacCyrillic" -t utf8
+	mxmlc -debug=true $(MCFLAGS) $(MCMETA) $(OUTPUT) $(SOURCE) 2>&1 | iconv -f "MacCyrillic" -t utf8
 
 clean:
 	rm bin/wlplayer.swf

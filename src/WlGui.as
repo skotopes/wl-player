@@ -3,12 +3,14 @@ package {
     import flash.display.Sprite;
 
     // Our stuff import
-    import Histogram;
-    import SSWButton;
+    import widgets.Histogram;
+    import widgets.SSWButton;
+    import widgets.Volume;
     
     public class WlGui extends Sprite {
         public var guiButtons:SSWButton;
         public var guiHistogram:Histogram;
+        public var guiVolume:Volume;
         
         public function WlGui(guiWidth:Number, guiHeight:Number)
         {            
@@ -25,10 +27,15 @@ package {
             guiButtons.state = 'play';
             addChild(guiButtons);
 
-            guiHistogram = new Histogram(guiWidth - guiHeight, guiHeight);
+            guiHistogram = new Histogram(guiWidth - guiHeight - 25, guiHeight);
             guiHistogram.x = guiHeight;
             guiHistogram.y = 0;
             addChild(guiHistogram);
+
+            guiVolume = new Volume(20, guiHeight);
+            guiVolume.x = guiWidth - 20;
+            guiVolume.y = 0;
+            addChild(guiVolume);
         }
     }
 }
