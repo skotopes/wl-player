@@ -5,10 +5,10 @@ package {
     import flash.media.Sound;
     import flash.media.SoundChannel;
     import flash.media.SoundTransform;
+    import flash.display.Sprite;
     import flash.display.Bitmap;
     import flash.display.Loader;
     import flash.display.LoaderInfo;
-    import flash.display.MovieClip;
     import flash.display.StageAlign;
     import flash.display.StageScaleMode;
     import flash.external.ExternalInterface;
@@ -16,7 +16,7 @@ package {
     import widgets.PEvent;
     import WlGui;
     
-    public class WlPlayer extends MovieClip {
+    public class WlPlayer extends Sprite {
         // Required params
         private var playerID:String;
         private var soundFile:String;
@@ -52,7 +52,6 @@ package {
             FramerateThrottler.initialize(stage, 1);
             
             var requiredVars:Array = ['soundFile', 'playerID'];
-            
             requiredVars.map(function(name:String, index:Number, all:Array):void {
                                 if (! stage.loaderInfo.parameters[name] ? true : false) {
                                     throw new Error('param ' + name + ' is required'); 
@@ -61,7 +60,6 @@ package {
                              }, this);
             
             var optionalVars:Array = ['maskFile', 'backFile', 'gWidth', 'gHeight'];
-                        
             optionalVars.map(function(name:String, index:Number, all:Array):void {
                                  if (stage.loaderInfo.parameters[name] ? true : false) {
                                     this[name] = stage.loaderInfo.parameters[name];
@@ -75,17 +73,14 @@ package {
             
             playerGui = new WlGui(gWidth, gHeight);
             addChild(playerGui);
-
-            audioFactory = new Sound();
-            audioTrans = new SoundTransform(1);
-                        
+            
             if (backFile) {
                 var backUrlReq:URLRequest = new URLRequest(backFile);
                 var histBackLoad:Loader = new Loader();
 
                 with (histBackLoad.contentLoaderInfo) {
                     addEventListener(Event.COMPLETE, histBackLoaded);
-                    addEventListener(IOErrorEvent.IO_ERROR, histBackIOError);
+                    addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
                 }
                 
                 histBackLoad.load(backUrlReq);
@@ -97,31 +92,42 @@ package {
 
                 with (histMaskLoad.contentLoaderInfo) {
                     addEventListener(Event.COMPLETE, histMaskLoaded);
-                    addEventListener(IOErrorEvent.IO_ERROR, histMaskIOError);
+                    addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
                 }
 
                 histMaskLoad.load(maskUrlReq);
             }
-        
+            
+            playerGui.guiVolume.level = 1;
+
+            audioFactory = new Sound();
+            audioTrans = new SoundTransform(1);
+            
             with (playerGui) {
                 guiButtons.addEventListener(MouseEvent.CLICK, onSSWButtonClick);
                 guiHistogram.addEventListener(PEvent.ABS_PERCENT, onHistogramClick);
                 guiVolume.addEventListener(PEvent.ABS_PERCENT, onVolumeClick);
             }
-            
+
             ExternalInterface.addCallback('pause', pauseHandler);
             ExternalInterface.addCallback('setVolume', volumeHandler);
-
-            playerGui.guiVolume.level = 1;
         }
         
         /**
          * Setters/Getters
-         *
+         * 
          */ 
         
         private function get length():Number {
             return audioFactory.length * audioFactory.bytesTotal / audioFactory.bytesLoaded;
+        }
+        
+        private function set volume(vol:Number):void {
+            audioTrans.volume = vol;
+            playerGui.guiVolume.level = vol;
+            if (audioChannel) {
+                audioChannel.soundTransform = audioTrans;
+            }
         }
         
         /**
@@ -129,7 +135,7 @@ package {
          *
          */
 
-        // Click events
+        // onClick events from GUI
         private function onSSWButtonClick(event:MouseEvent):void {
             if (audioState == STATE_STOPPED) {
                 loadMP3();
@@ -140,97 +146,95 @@ package {
                 pauseMP3();
             }
         }
-        
-        private function onHistogramClick(event:PEvent):void {    
-            if (audioState != STATE_STOPPED) {
-                if (audioFactory.bytesLoaded > audioFactory.bytesTotal * event.percent) {
-                    audioChannel.stop();
-                    position = length * event.percent;
-                    playMP3();
-                }
+
+        private function onHistogramClick(event:PEvent):void {
+            if (audioState != STATE_STOPPED 
+                && audioFactory.bytesLoaded > audioFactory.bytesTotal * event.percent) {
+                audioChannel.stop();
+                position = length * event.percent;
+                playMP3();
             }
         }
 
         private function onVolumeClick(event:PEvent):void {
             ExternalInterface.call('AudioPlayer.onVolume', playerID, event.percent);
-            audioTrans.volume = event.percent;
-            if (audioChannel) {
-                audioChannel.soundTransform = audioTrans;
-            }
+            volume = event.percent;
         }
         
-        // sound factory events
-        private function onLoadProgress(event:ProgressEvent):void {
-            playerGui.guiHistogram.loadProgress = event.bytesLoaded / event.bytesTotal;
-        }
-        
-        private function ioErrorHandler(event:IOErrorEvent):void {
-            playerGui.guiButtons.state = 'wip';
-        }
-        
-        private function onCompleatProgress(event:Event):void {
-            audioFactory.removeEventListener(ProgressEvent.PROGRESS, onLoadProgress);
-            playerGui.guiHistogram.loadProgress = 1;
-        }
-        
-        private function updatePosition(event:Event):void {
-            playerGui.guiHistogram.playPosition = audioChannel.position / length;
-        }        
-        
-        private function soundCompleteHandler(event:Event):void {
-            removeEventListener(Event.ENTER_FRAME, updatePosition);
-            audioChannel.removeEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
-            position = 0;
-        }
-
         // background loading events
         private function histBackLoaded(event:Event):void {
             var loaderInfo:LoaderInfo = event.currentTarget as LoaderInfo;
             playerGui.guiHistogram.histBack = loaderInfo.content as Bitmap;
         }
         
-        private function histBackIOError(event:IOErrorEvent):void {
-            playerGui.guiButtons.state = 'wip';
-        }
-
         // mask loading events
         private function histMaskLoaded(event:Event):void {
             var loaderInfo:LoaderInfo = event.currentTarget as LoaderInfo;
             playerGui.guiHistogram.histMask = loaderInfo.content as Bitmap;
         }
         
-        private function histMaskIOError(event:IOErrorEvent):void {
+        // load progress events
+        private function onLoadProgress(event:ProgressEvent):void {
+            playerGui.guiHistogram.loadProgress = event.bytesLoaded / event.bytesTotal;
+        }
+                
+        private function onCompleatProgress(event:Event):void {
+            audioFactory.removeEventListener(ProgressEvent.PROGRESS, onLoadProgress);
+            playerGui.guiHistogram.loadProgress = 1;
+        }
+        
+        // play progress events
+        private function updatePosition(event:Event):void {
+            playerGui.guiHistogram.playPosition = audioChannel.position / length;
+        }
+        
+        private function soundCompleteHandler(event:Event):void {
+            playerGui.guiHistogram.playPosition = position = 0;
+            removeEventListener(Event.ENTER_FRAME, updatePosition);
+
+            // GUI and State
+            audioState = STATE_PAUSED;
+            playerGui.guiButtons.state = 'play';
+        }
+
+        // common input/output error
+        private function ioErrorHandler(event:IOErrorEvent):void {
             playerGui.guiButtons.state = 'wip';
         }
         
         /**
-         * Abstract shit
-         *
+         * Private audio methods
+         * 
          */ 
         
         private function loadMP3():void {
             audioFactory.load(new URLRequest(soundFile));
+
             audioFactory.addEventListener(ProgressEvent.PROGRESS, onLoadProgress);
-            audioFactory.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
             audioFactory.addEventListener(Event.COMPLETE, onCompleatProgress);
+            audioFactory.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
         }
                 
         private function pauseMP3():void {
             position = audioChannel.position;
+
             audioChannel.stop();
+            
+            audioChannel.removeEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
+            removeEventListener(Event.ENTER_FRAME, updatePosition);
+
             audioState = STATE_PAUSED;
             playerGui.guiButtons.state = 'play';
         }
         
         private function playMP3():void {
             ExternalInterface.call('AudioPlayer.onPlay', playerID);
-
             audioChannel = audioFactory.play(position, 0, audioTrans);
+
             audioChannel.addEventListener(Event.SOUND_COMPLETE, soundCompleteHandler);
             addEventListener(Event.ENTER_FRAME, updatePosition);
 
             audioState = STATE_PLAYING;
-
             playerGui.guiButtons.state = 'pause';
             playerGui.guiHistogram.playPosition = audioChannel.position / length;
         }
@@ -247,11 +251,7 @@ package {
         }
 
         private function volumeHandler(vol:Number):void {
-            audioTrans.volume = vol;
-            playerGui.guiVolume.level = vol;
-            if (audioChannel) {
-                audioChannel.soundTransform = audioTrans;
-            }            
+            volume = vol;
         }
     }
 }
