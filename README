@@ -1,26 +1,75 @@
-параметры, передаваемые плееру через flashvars
+About:
+==========================================
 
-обязательные
+Wl Player - small audio player with histogram and spectrogram support.
+Was developed like a replacement for wordpress player(http://wpaudioplayer.com/)
+Can be used instead of it, but have no customization options and other whistles and crackles.
 
-	private var url:String;
-	private var imageUrl:String;
-	private var backgroundUrl:String;
+Features:
+==========================================
 
+Basic features:
+1) it can play audio (cool, isn`t it?)
+2) show histogram (it works like mask for background or spectrogram)
+3) show spectrogram
 
-опциональные
+Remote control throw the JS-api is avaliable and probably partially compatiable with wp-audio player
 
-        private var playerWidth:Number = 500;
-        private var playerHeight:Number = 80;
-        private var playerBackgroundColor:Number = 0x000000;
-        
-        private var buttonWidth:Number = 80;
-        private var buttonHeight:Number = 80;
-        
-        private var loadingIndicatorWeight:Number = 2;
-        private var loadingIndicatorColor:Number = 0x0000FF;
-        private var loadingIndicatorUpdateInterval:Number = 400;
-        
-        private var progressIndicatorWeight:Number = 2;
-        private var progressIndicatorColor:Number = 0xFF0000;
-        private var progressIndicatorUpdateInterval:Number = 400;
+Usage:
+==========================================
 
+It`s better to use JS-wrapper then direct object embedding, 
+anyway it`s better to know what are you doing.
+
+First of all we need to setup environ:
+
+<head>
+  <script type="text/javascript" src="audio-player.js"></script>
+  <script type="text/javascript">
+  AudioPlayer.setup('../bin/wlplayer.swf', {
+    'transparentpagebg': 'yes',
+    'width': 700,
+    'height': 100
+  });
+  </script>
+</head>
+
+Second argument is default options.
+
+then you can use instances:
+
+<p id="audioplayer_1">Alternative content</p>
+<script type="text/javascript">
+AudioPlayer.embed("audioplayer_1", {
+  'soundFile': 'http://share.white-label.ru/previews/3bb390e0-edd7-11de-8fd6-000423b32792',
+  'maskFile': 'output.png'
+});
+</script>
+
+First argument is unique id, second is options.
+Full list of options:
+
+Must have:
+'soundFile' - file url
+
+Additional:
+'maskFile' - histgram mask (FF0000 - mask color + alpha for mixing png24/png8 is good)
+'backFile' - spectrogram file (any flash supported format)
+'gWidth'   - |
+'gHeight'  - |-> hack in case if you cary about ie6/ie7 users (long story with ie cache + onResize)
+
+Known bugs:
+==========================================
+
+No width 100% support. Only exact size.
+Some webkit-based browsers and opera may skip event handling 
+when you got more then 10 instances on one page. By the way it`s not a bug, but flash feature
+In case if you need to have lot of player on one page, then soundcloud way is for you.
+
+From Author:
+==========================================
+
+flash is sucks anyway. It`s slow and buggy, but everyone have it ;-(
+Probably the best way for such things now is js+html GUI + 1 flash sound backend
+
+anyway, if you have good ideas let me know: cat@myau.su
