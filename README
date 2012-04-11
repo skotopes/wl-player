@@ -13,7 +13,7 @@ Basic features:
 2) show histogram (it works like mask for background or spectrogram)
 3) show spectrogram
 
-Remote control throw the JS-api is avaliable and probably partially compatiable with wp-audio player
+Remote control throw the JS-api is available and probably partially compatible with wp-audio player
 
 Usage:
 ==========================================
@@ -53,7 +53,7 @@ Must have:
 'soundFile' - file url
 
 Additional:
-'maskFile' - histgram mask (FF0000 - mask color + alpha for mixing png24/png8 is good)
+'maskFile' - histogram mask (FF0000 - mask color + alpha for mixing png24/png8 is good)
 'backFile' - spectrogram file (any flash supported format)
 'gWidth'   - |
 'gHeight'  - |-> hack in case if you cary about ie6/ie7 users (long story with ie cache + onResize)
@@ -66,10 +66,9 @@ Some webkit-based browsers and opera may skip event handling
 when you got more then 10 instances on one page. By the way it`s not a bug, but flash feature
 In case if you need to have lot of player on one page, then soundcloud way is for you.
 
-From Author:
+PS:
 ==========================================
-
 flash is sucks anyway. It`s slow and buggy, but everyone have it ;-(
 Probably the best way for such things now is js+html GUI + 1 flash sound backend
 
-anyway, if you have good ideas let me know: cat@myau.su
+anyway, if you have good ideas let me know in comments
