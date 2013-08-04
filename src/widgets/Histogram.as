@@ -12,8 +12,8 @@ package widgets {
         private var layers:Array = ['histogram', 'loading', 'position', 'click'];
         private var sprites:Dictionary = new Dictionary();
 
-        private var positionIndicatorColor:Number = 0xFF0000;
-        private var loadingIndicatorColor:Number = 0x336666;
+        private var positionIndicatorColor:Number = 0x000000;
+        private var loadingIndicatorColor:Number = 0x99ffff;
 
         [Embed(source='Histogram_assets/histogram_background.svg')]
         private var backgroundSvg:Class;
