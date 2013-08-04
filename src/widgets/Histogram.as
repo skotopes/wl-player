@@ -13,7 +13,7 @@ package widgets {
         private var sprites:Dictionary = new Dictionary();
 
         private var positionIndicatorColor:Number = 0x000000;
-        private var loadingIndicatorColor:Number = 0x99ffff;
+        private var loadingIndicatorColor:Number = 0x99dddd;
 
         [Embed(source='Histogram_assets/histogram_background.svg')]
         private var backgroundSvg:Class;
