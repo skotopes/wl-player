@@ -1,4 +1,4 @@
-MCFLAGS = -static-link-runtime-shared-libraries -compiler.optimize -compiler.strict -target-player 9.0.124
+MCFLAGS = -static-link-runtime-shared-libraries -compiler.optimize -compiler.strict -target-player 11.1 
 MCMETA = -metadata.creator skotopes -metadata.title WlPlayer -metadata.publisher skotopes
 SOURCE = src/WlPlayer.as
 OUTPUT = -output bin/wlplayer.swf

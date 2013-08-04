@@ -100,7 +100,7 @@ package widgets {
         }
         
         public function set histBack(image:Bitmap):void {
-            image.smoothing = true;
+            /*image.smoothing = true;*/
             image.width = sprites['histogram'].width;
             image.height = sprites['histogram'].height;
             image.cacheAsBitmap = true;
